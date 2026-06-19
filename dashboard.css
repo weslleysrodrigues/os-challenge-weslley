@@ -178,4 +178,163 @@ td {
   .bar-row {
     grid-template-columns: 90px 1fr 70px;
   }
+  .triage-panel {
+  margin-top: 24px;
+}
+
+.triage-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.triage-summary div {
+  background: #f8f4ef;
+  border: 1px solid #e7ded3;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.summary-label {
+  display: block;
+  color: #6b7280;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.triage-summary strong {
+  font-size: 24px;
+  color: #2f1b0c;
+}
+
+.triage-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  font-size: 14px;
+}
+
+.triage-toolbar select {
+  border: 1px solid #d6c7b7;
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: white;
+  color: #2f1b0c;
+}
+
+.triage-list {
+  display: grid;
+  gap: 14px;
+}
+
+.triage-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 18px;
+  padding: 16px;
+  border: 1px solid #e7ded3;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.triage-card.contacted {
+  opacity: 0.68;
+  background: #f9fafb;
+}
+
+.triage-main h3 {
+  margin: 0 0 8px;
+  color: #2f1b0c;
+}
+
+.triage-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.badge-hot {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-warm {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-cold {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.badge-status {
+  background: #ede6dc;
+  color: #2f1b0c;
+}
+
+.triage-reason {
+  margin: 8px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.triage-actions {
+  display: flex;
+  align-items: center;
+}
+
+.triage-actions button {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: #8b5e34;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.triage-actions button:hover {
+  background: #6f4728;
+}
+
+.triage-actions button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.empty-state {
+  padding: 18px;
+  border-radius: 14px;
+  background: #f8f4ef;
+  border: 1px solid #e7ded3;
+  color: #6b7280;
+}
+
+@media (max-width: 900px) {
+  .triage-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .triage-card {
+    grid-template-columns: 1fr;
+  }
+
+  .triage-actions {
+    justify-content: flex-start;
+  }
+}
 }
