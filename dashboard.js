@@ -1,12 +1,14 @@
 async function loadDashboardData() {
   try {
     const salesResponse = await fetch("./data/sales.json");
-    const inquiriesResponse = await fetch("./data/inquiries.json");
+const inquiriesResponse = await fetch("./data/inquiries.json");
+const accountsResponse = await fetch("./data/accounts.json");
 
-    const sales = await salesResponse.json();
-    const inquiries = await inquiriesResponse.json();
+const sales = await salesResponse.json();
+const inquiries = await inquiriesResponse.json();
+const accounts = await accountsResponse.json();
 
-    renderDashboard(sales, inquiries);
+renderDashboard(sales, inquiries, accounts);
   } catch (error) {
     console.error("Error loading dashboard data:", error);
     document.body.innerHTML = `
@@ -59,7 +61,7 @@ function getPriority(inquiry) {
   return inquiry.priority || inquiry.urgency || "Normal";
 }
 
-function renderDashboard(sales, inquiries) {
+function renderDashboard(sales, inquiries, accounts) {
   const totalRevenue = sales.reduce((sum, sale) => sum + getRevenue(sale), 0);
   const totalSales = sales.length;
 
@@ -96,8 +98,75 @@ function renderDashboard(sales, inquiries) {
     revenueByRegion,
     inquiriesByStatus
   });
-  renderRecentInquiries(inquiries);
-  renderTriageWorkflow(inquiries);
+  function findAccountForInquiry(inquiry, accounts) {
+  const inquiryAccountId =
+    inquiry.account_id ||
+    inquiry.accountId ||
+    inquiry.accountID ||
+    inquiry.account ||
+    inquiry.customer_id ||
+    inquiry.customerId;
+
+  if (!inquiryAccountId || !Array.isArray(accounts)) {
+    return null;
+  }
+
+  return accounts.find((account) => {
+    const accountId =
+      account.id ||
+      account.account_id ||
+      account.accountId ||
+      account.accountID ||
+      account.customer_id ||
+      account.customerId;
+
+    return String(accountId) === String(inquiryAccountId);
+  });
+}
+
+function getCompany(inquiry, accounts = []) {
+  const directCompany =
+    inquiry.company ||
+    inquiry.company_name ||
+    inquiry.companyName ||
+    inquiry.business ||
+    inquiry.business_name ||
+    inquiry.businessName ||
+    inquiry.customer ||
+    inquiry.customer_name ||
+    inquiry.customerName ||
+    inquiry.name ||
+    inquiry.organization ||
+    inquiry.organization_name;
+
+  if (directCompany) {
+    return directCompany;
+  }
+
+  const account = findAccountForInquiry(inquiry, accounts);
+
+  if (!account) {
+    return "Unknown";
+  }
+
+  return (
+    account.company ||
+    account.company_name ||
+    account.companyName ||
+    account.business ||
+    account.business_name ||
+    account.businessName ||
+    account.customer ||
+    account.customer_name ||
+    account.customerName ||
+    account.name ||
+    account.organization ||
+    account.organization_name ||
+    "Unknown"
+  );
+}
+renderRecentInquiries(inquiries, accounts);
+renderTriageWorkflow(inquiries, accounts);
 }
 
 function groupRevenueByRegion(sales) {
@@ -178,7 +247,7 @@ function renderOperatorNotes(data) {
   `;
 }
 
-function renderRecentInquiries(inquiries) {
+function renderRecentInquiries(inquiries, accounts = []) {
   const tbody = document.getElementById("recentInquiries");
   tbody.innerHTML = "";
 
@@ -296,7 +365,7 @@ function markInquiryAsContacted(inquiryId) {
   };
 
   saveContactedState(contactedState);
-  renderTriageWorkflow(window.currentInquiries || []);
+  renderTriageWorkflow(window.currentInquiries || [], window.currentAccounts || []);
 }
 
 function buildTriageItems(inquiries) {
@@ -320,6 +389,7 @@ function getPriorityRank(level) {
 
 function renderTriageWorkflow(inquiries) {
   window.currentInquiries = inquiries;
+window.currentAccounts = accounts;
 
   const list = document.getElementById("triageList");
   const filter = document.getElementById("triageFilter");
@@ -425,7 +495,7 @@ function renderTriageWorkflow(inquiries) {
   });
 
   filter.onchange = function () {
-    renderTriageWorkflow(window.currentInquiries || []);
+    renderTriageWorkflow(window.currentInquiries || [], window.currentAccounts || []);
   };
 }
 
