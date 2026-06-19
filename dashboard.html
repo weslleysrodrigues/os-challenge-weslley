@@ -49,7 +49,7 @@
       <div class="panel">
         <div class="panel-header">
           <h2>Revenue by Region</h2>
-          <p>Helps operators understand where the business is strongest.</p>
+          <p>Share of Regions where the business is strongest.</p>
         </div>
         <div id="revenueByRegion" class="bar-chart"></div>
       </div>
@@ -57,7 +57,7 @@
       <div class="panel">
         <div class="panel-header">
           <h2>Inquiries by Status</h2>
-          <p>Shows how much work is waiting in each inquiry stage.</p>
+          <p>Quantity on wait in each inquiry stage.</p>
         </div>
         <div id="inquiriesByStatus" class="bar-chart"></div>
       </div>
@@ -125,6 +125,13 @@
   </div>
 
   <div class="triage-toolbar">
+  <label for="triageSearch">Search:</label>
+  <input
+    id="triageSearch"
+    type="text"
+    placeholder="Search by cafe or contact name"
+  />
+
   <label for="triageFilter">Priority:</label>
   <select id="triageFilter">
     <option value="all">All</option>
