@@ -492,18 +492,6 @@ function getActiveInquiries(inquiries) {
   });
 }
 
-function getAccountId(account) {
-  return (
-    account.id ||
-    account.account_id ||
-    account.accountId ||
-    account.accountID ||
-    account.customer_id ||
-    account.customerId ||
-    ""
-  );
-}
-
 function getInquiryAccountId(inquiry) {
   return (
     inquiry.account_id ||
@@ -524,83 +512,32 @@ function normalizeName(value) {
     .replace(/[^a-z0-9]/g, "");
 }
 
-function findAccountForInquiry(inquiry, accounts) {
+function getInquiryCountForCustomer(inquiry, inquiries) {
   const inquiryAccountId = getInquiryAccountId(inquiry);
 
   if (inquiryAccountId) {
-    const matchedById = accounts.find((account) => {
-      return String(getAccountId(account)) === String(inquiryAccountId);
-    });
+    const countByAccountId = inquiries.filter((item) => {
+      return String(getInquiryAccountId(item)) === String(inquiryAccountId);
+    }).length;
 
-    if (matchedById) {
-      return matchedById;
-    }
+    return countByAccountId || 1;
   }
 
   const inquiryName = normalizeName(getCompany(inquiry));
 
   if (!inquiryName) {
-    return null;
+    return 1;
   }
 
-  return (
-    accounts.find((account) => {
-      const accountName = normalizeName(account.name || account.company || account.cafe_name);
+  const countByName = inquiries.filter((item) => {
+    return normalizeName(getCompany(item)) === inquiryName;
+  }).length;
 
-      return accountName && accountName === inquiryName;
-    }) || null
-  );
+  return countByName || 1;
 }
 
-function getCustomerSince(inquiry, accounts) {
-  const account = findAccountForInquiry(inquiry, accounts);
-
-  if (!account) {
-    return "Prospect";
-  }
-
-  return (
-    account.customer_since ||
-    account.customerSince ||
-    account.created_at ||
-    account.createdAt ||
-    "Unknown"
-  );
-}
-
-function getInquiryCountForAccount(inquiry, inquiries, accounts) {
-  const account = findAccountForInquiry(inquiry, accounts);
-  const inquiryAccountId = getInquiryAccountId(inquiry);
-
-  let count = 0;
-
-  if (account && getAccountId(account)) {
-    const accountId = String(getAccountId(account));
-
-    count = inquiries.filter((item) => {
-      return String(getInquiryAccountId(item)) === accountId;
-    }).length;
-  }
-
-  if (!count && inquiryAccountId) {
-    count = inquiries.filter((item) => {
-      return String(getInquiryAccountId(item)) === String(inquiryAccountId);
-    }).length;
-  }
-
-  if (!count) {
-    const inquiryName = normalizeName(getCompany(inquiry));
-
-    count = inquiries.filter((item) => {
-      return normalizeName(getCompany(item)) === inquiryName;
-    }).length;
-  }
-
-  return count || 1;
-}
-
-function getInquiryCountLabel(inquiry, inquiries, accounts) {
-  const count = getInquiryCountForAccount(inquiry, inquiries, accounts);
+function getInquiryCountLabel(inquiry, inquiries) {
+  const count = getInquiryCountForCustomer(inquiry, inquiries);
 
   if (count === 1) {
     return "1 - New";
@@ -638,6 +575,32 @@ function populateStatusFilter(activeInquiries) {
   statusFilter.value = stillExists ? currentValue : "all";
 }
 
+function getSearchValue() {
+  const searchInput = document.getElementById("triageSearch");
+
+  if (!searchInput) {
+    return "";
+  }
+
+  return searchInput.value.trim().toLowerCase();
+}
+
+function matchesSearch(inquiry, searchValue) {
+  if (!searchValue) {
+    return true;
+  }
+
+  const searchableText = [
+    getCompany(inquiry),
+    getContactName(inquiry),
+    getEmail(inquiry)
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  return searchableText.includes(searchValue);
+}
+
 function renderTriageWorkflow(inquiries, accounts = []) {
   window.currentInquiries = inquiries;
   window.currentAccounts = accounts;
@@ -647,6 +610,7 @@ function renderTriageWorkflow(inquiries, accounts = []) {
   const list = document.getElementById("triageList");
   const priorityFilter = document.getElementById("triageFilter");
   const statusFilter = document.getElementById("triageStatusFilter");
+  const searchInput = document.getElementById("triageSearch");
 
   if (!list || !priorityFilter) {
     return;
@@ -674,6 +638,7 @@ function renderTriageWorkflow(inquiries, accounts = []) {
 
   const selectedPriority = priorityFilter.value;
   const selectedStatus = statusFilter ? statusFilter.value : "all";
+  const searchValue = getSearchValue();
 
   if (selectedPriority !== "all") {
     triageItems = triageItems.filter((item) => {
@@ -686,6 +651,10 @@ function renderTriageWorkflow(inquiries, accounts = []) {
       return String(getStatus(item.inquiry)).toLowerCase() === selectedStatus;
     });
   }
+
+  triageItems = triageItems.filter((item) => {
+    return matchesSearch(item.inquiry, searchValue);
+  });
 
   updateTriageCounts(buildTriageItems(activeInquiries), contactedState);
 
@@ -704,8 +673,7 @@ function renderTriageWorkflow(inquiries, accounts = []) {
     const inquiry = item.inquiry;
     const isContacted = contactedState[item.id]?.contacted;
     const contactedAt = contactedState[item.id]?.contactedAt;
-    const customerSince = getCustomerSince(inquiry, accounts);
-    const inquiryCountLabel = getInquiryCountLabel(inquiry, inquiries, accounts);
+    const inquiryCountLabel = getInquiryCountLabel(inquiry, inquiries);
 
     const card = document.createElement("div");
     card.className = `triage-card ${isContacted ? "contacted" : ""}`;
@@ -755,11 +723,6 @@ function renderTriageWorkflow(inquiries, accounts = []) {
           </div>
 
           <div class="detail-item">
-            <span>Customer Since</span>
-            <strong>${customerSince}</strong>
-          </div>
-
-          <div class="detail-item">
             <span>Number of Inquiries</span>
             <strong>${inquiryCountLabel}</strong>
           </div>
@@ -803,6 +766,12 @@ function renderTriageWorkflow(inquiries, accounts = []) {
 
   if (statusFilter) {
     statusFilter.onchange = function () {
+      renderTriageWorkflow(window.currentInquiries || [], window.currentAccounts || []);
+    };
+  }
+
+  if (searchInput) {
+    searchInput.oninput = function () {
       renderTriageWorkflow(window.currentInquiries || [], window.currentAccounts || []);
     };
   }
