@@ -93,6 +93,49 @@
         </div>
       </div>
     </section>
+
+  <section class="panel triage-panel">
+  <div class="panel-header">
+    <h2>Inquiry Triage Workflow</h2>
+    <p>
+      Prioritized inbound wholesale inquiries. Operators can review the highest-value opportunities first and mark inquiries as contacted.
+    </p>
+  </div>
+
+  <div class="triage-summary">
+    <div>
+      <span class="summary-label">Hot</span>
+      <strong id="hotCount">0</strong>
+    </div>
+
+    <div>
+      <span class="summary-label">Warm</span>
+      <strong id="warmCount">0</strong>
+    </div>
+
+    <div>
+      <span class="summary-label">Cold</span>
+      <strong id="coldCount">0</strong>
+    </div>
+
+    <div>
+      <span class="summary-label">Contacted</span>
+      <strong id="contactedCount">0</strong>
+    </div>
+  </div>
+
+  <div class="triage-toolbar">
+    <label for="triageFilter">Filter by priority:</label>
+    <select id="triageFilter">
+      <option value="all">All</option>
+      <option value="hot">Hot</option>
+      <option value="warm">Warm</option>
+      <option value="cold">Cold</option>
+    </select>
+  </div>
+
+  <div id="triageList" class="triage-list"></div>
+</section>
   </main>
 
   <script src="dashboard.js"></script>
