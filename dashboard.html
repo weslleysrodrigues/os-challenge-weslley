@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coffee Roaster Command Center</title>
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+
+<body>
+  <main class="page">
+    <section class="header">
+      <div>
+        <p class="eyebrow">Internal Command Center</p>
+        <h1>Coffee Roaster Dashboard</h1>
+        <p class="subtitle">
+          A quick operator view of sales performance, regional demand, and inquiry workload.
+        </p>
+      </div>
+    </section>
+
+    <section class="kpi-grid">
+      <div class="card">
+        <p class="card-label">Total Revenue</p>
+        <h2 id="totalRevenue">$0</h2>
+        <span>Total revenue from sales.json</span>
+      </div>
+
+      <div class="card">
+        <p class="card-label">Total Sales</p>
+        <h2 id="totalSales">0</h2>
+        <span>Number of closed sales</span>
+      </div>
+
+      <div class="card">
+        <p class="card-label">New Inquiries</p>
+        <h2 id="newInquiries">0</h2>
+        <span>Waiting for review</span>
+      </div>
+
+      <div class="card">
+        <p class="card-label">Top Region</p>
+        <h2 id="topRegion">-</h2>
+        <span>Strongest region by revenue</span>
+      </div>
+    </section>
+
+    <section class="grid-two">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Revenue by Region</h2>
+          <p>Helps operators understand where the business is strongest.</p>
+        </div>
+        <div id="revenueByRegion" class="bar-chart"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Inquiries by Status</h2>
+          <p>Shows how much work is waiting in each inquiry stage.</p>
+        </div>
+        <div id="inquiriesByStatus" class="bar-chart"></div>
+      </div>
+    </section>
+
+    <section class="grid-two">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Operator Notes</h2>
+          <p>Useful signals for daily triage decisions.</p>
+        </div>
+        <div id="operatorNotes" class="notes"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Recent Inquiries</h2>
+          <p>A quick starting point for the inquiry-triage workflow.</p>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Region</th>
+                <th>Status</th>
+                <th>Priority</th>
+              </tr>
+            </thead>
+            <tbody id="recentInquiries"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
