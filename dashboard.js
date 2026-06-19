@@ -2,11 +2,34 @@ async function loadDashboardData() {
   try {
     const salesResponse = await fetch("./data/sales.json");
     const inquiriesResponse = await fetch("./data/inquiries.json");
+    const accountsResponse = await fetch("./data/accounts.json");
 
-    const sales = await salesResponse.json();
-    const inquiries = await inquiriesResponse.json();
+    if (!salesResponse.ok) {
+      throw new Error("Could not load sales.json");
+    }
 
-    renderDashboard(sales, inquiries);
+    if (!inquiriesResponse.ok) {
+      throw new Error("Could not load inquiries.json");
+    }
+
+    const salesRaw = await salesResponse.json();
+    const inquiriesRaw = await inquiriesResponse.json();
+
+    let accountsRaw = [];
+
+    if (accountsResponse.ok) {
+      accountsRaw = await accountsResponse.json();
+    }
+
+    const sales = normalizeData(salesRaw);
+    const inquiries = normalizeData(inquiriesRaw);
+    const accounts = normalizeData(accountsRaw);
+
+    console.log("Loaded sales:", sales);
+    console.log("Loaded inquiries:", inquiries);
+    console.log("Loaded accounts:", accounts);
+
+    renderDashboard(sales, inquiries, accounts);
   } catch (error) {
     console.error("Error loading dashboard data:", error);
 
@@ -22,20 +45,64 @@ async function loadDashboardData() {
   }
 }
 
+function normalizeData(data) {
+  if (Array.isArray(data)) {
+    return data;
+  }
+
+  if (!data || typeof data !== "object") {
+    return [];
+  }
+
+  const possibleKeys = [
+    "data",
+    "items",
+    "records",
+    "sales",
+    "inquiries",
+    "accounts",
+    "results"
+  ];
+
+  for (const key of possibleKeys) {
+    if (Array.isArray(data[key])) {
+      return data[key];
+    }
+  }
+
+  const firstArray = Object.values(data).find((value) => Array.isArray(value));
+
+  if (firstArray) {
+    return firstArray;
+  }
+
+  return [];
+}
+
 function getRevenue(sale) {
-  return Number(
+  const value =
     sale.revenue ||
+    sale.revenue_usd ||
+    sale.total_revenue ||
     sale.totalRevenue ||
     sale.total ||
     sale.amount ||
+    sale.amount_usd ||
     sale.value ||
-    0
-  );
+    sale.order_value ||
+    sale.orderValue ||
+    sale.sales ||
+    sale.price ||
+    sale.total_price ||
+    0;
+
+  return Number(value) || 0;
 }
 
 function getRegion(item) {
   return (
     item.region ||
+    item.sales_region ||
     item.market ||
     item.state ||
     item.location ||
@@ -43,8 +110,8 @@ function getRegion(item) {
   );
 }
 
-function getStatus(inquiry) {
-  return inquiry.status || inquiry.stage || "Unknown";
+function getStatus(item) {
+  return item.status || item.stage || "Unknown";
 }
 
 function getCompany(inquiry) {
@@ -75,15 +142,29 @@ function getChannel(inquiry) {
 }
 
 function getRequestedVolume(inquiry) {
-  return Number(inquiry.requested_volume_lbs_month || inquiry.volume || 0);
+  return Number(
+    inquiry.requested_volume_lbs_month ||
+    inquiry.requestedVolumeLbsMonth ||
+    inquiry.monthly_volume_lbs ||
+    inquiry.volume ||
+    inquiry.volume_lbs ||
+    0
+  ) || 0;
 }
 
 function getReceivedDate(inquiry) {
-  return inquiry.received_date || inquiry.date || inquiry.created_at || "Unknown date";
+  return (
+    inquiry.received_date ||
+    inquiry.receivedDate ||
+    inquiry.date ||
+    inquiry.created_at ||
+    inquiry.createdAt ||
+    "Unknown date"
+  );
 }
 
 function getInquiryMessage(inquiry) {
-  return inquiry.message || "No message provided.";
+  return inquiry.message || inquiry.notes || inquiry.description || "No message provided.";
 }
 
 function getInquirySummary(inquiry) {
@@ -96,13 +177,13 @@ function getInquirySummary(inquiry) {
   return `${getCompany(inquiry)} is a ${status} inquiry from ${region}, sourced through ${channel}. Requested volume is ${volume.toLocaleString()} lbs/month. Message: "${message}"`;
 }
 
-function renderDashboard(sales, inquiries) {
+function renderDashboard(sales, inquiries, accounts) {
   const totalRevenue = sales.reduce((sum, sale) => sum + getRevenue(sale), 0);
   const totalSales = sales.length;
 
   const newInquiries = inquiries.filter((inquiry) => {
     const status = String(getStatus(inquiry)).toLowerCase();
-    return status === "new";
+    return status === "new" || status === "qualified" || status === "open";
   }).length;
 
   const revenueByRegion = groupRevenueByRegion(sales);
@@ -112,27 +193,10 @@ function renderDashboard(sales, inquiries) {
     Object.entries(revenueByRegion).sort((a, b) => b[1] - a[1])[0]?.[0] ||
     "No data";
 
-  const totalRevenueElement = document.getElementById("totalRevenue");
-  const totalSalesElement = document.getElementById("totalSales");
-  const newInquiriesElement = document.getElementById("newInquiries");
-  const topRegionElement = document.getElementById("topRegion");
-
-  if (totalRevenueElement) {
-    totalRevenueElement.textContent =
-      "$" + Math.round(totalRevenue).toLocaleString();
-  }
-
-  if (totalSalesElement) {
-    totalSalesElement.textContent = totalSales.toLocaleString();
-  }
-
-  if (newInquiriesElement) {
-    newInquiriesElement.textContent = newInquiries.toLocaleString();
-  }
-
-  if (topRegionElement) {
-    topRegionElement.textContent = topRegion;
-  }
+  setText("totalRevenue", "$" + Math.round(totalRevenue).toLocaleString());
+  setText("totalSales", totalSales.toLocaleString());
+  setText("newInquiries", newInquiries.toLocaleString());
+  setText("topRegion", topRegion);
 
   renderBarChart("revenueByRegion", revenueByRegion, "$");
   renderBarChart("inquiriesByStatus", inquiriesByStatus, "");
@@ -143,11 +207,20 @@ function renderDashboard(sales, inquiries) {
     newInquiries,
     topRegion,
     revenueByRegion,
-    inquiriesByStatus
+    inquiriesByStatus,
+    inquiries
   });
 
   renderRecentInquiries(inquiries);
   renderTriageWorkflow(inquiries);
+}
+
+function setText(elementId, value) {
+  const element = document.getElementById(elementId);
+
+  if (element) {
+    element.textContent = value;
+  }
 }
 
 function groupRevenueByRegion(sales) {
@@ -184,10 +257,17 @@ function renderBarChart(elementId, data, prefix) {
   container.innerHTML = "";
 
   const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
-  const maxValue = Math.max(...entries.map((entry) => entry[1]), 1);
+
+  if (!entries.length) {
+    container.innerHTML = `<p class="empty-state">No data available.</p>`;
+    return;
+  }
+
+  const maxValue = Math.max(...entries.map((entry) => Number(entry[1])), 1);
 
   entries.forEach(([label, value]) => {
-    const width = (value / maxValue) * 100;
+    const numericValue = Number(value) || 0;
+    const width = (numericValue / maxValue) * 100;
 
     const row = document.createElement("div");
     row.className = "bar-row";
@@ -197,7 +277,7 @@ function renderBarChart(elementId, data, prefix) {
       <div class="bar-track">
         <div class="bar-fill" style="width: ${width}%"></div>
       </div>
-      <div class="bar-value">${prefix}${Math.round(value).toLocaleString()}</div>
+      <div class="bar-value">${prefix}${Math.round(numericValue).toLocaleString()}</div>
     `;
 
     container.appendChild(row);
@@ -218,17 +298,25 @@ function renderOperatorNotes(data) {
     Object.entries(data.inquiriesByStatus).sort((a, b) => b[1] - a[1])[0]?.[0] ||
     "No inquiry status";
 
+  const totalRequestedVolume = data.inquiries.reduce((sum, inquiry) => {
+    return sum + getRequestedVolume(inquiry);
+  }, 0);
+
   notes.innerHTML = `
     <div class="note">
-      <strong>${data.newInquiries} new inquiries</strong> are waiting for review. These should be checked first during daily triage.
+      <strong>${data.newInquiries} active inquiries</strong> are waiting for review or follow-up.
     </div>
 
     <div class="note">
-      <strong>${data.topRegion}</strong> is currently the strongest revenue region. Operators should prioritize high-quality inquiries from this region.
+      <strong>${data.topRegion}</strong> is currently the strongest revenue region based on sales data.
     </div>
 
     <div class="note">
-      Average sale value is <strong>$${Math.round(averageSale).toLocaleString()}</strong>. This can be used as a benchmark when reviewing new opportunities.
+      Average sale value is <strong>$${Math.round(averageSale).toLocaleString()}</strong>. Use this as a benchmark when reviewing new opportunities.
+    </div>
+
+    <div class="note">
+      Current inbound requested volume is <strong>${totalRequestedVolume.toLocaleString()} lbs/month</strong> across all inquiries.
     </div>
 
     <div class="note">
@@ -260,9 +348,9 @@ function renderRecentInquiries(inquiries) {
 
     row.innerHTML = `
       <td>${getCompany(inquiry)}</td>
-      <td>${getContactName(inquiry)}</td>
       <td>${getRegion(inquiry)}</td>
       <td>${getStatus(inquiry)}</td>
+      <td>${getRequestedVolume(inquiry).toLocaleString()} lbs/month</td>
     `;
 
     tbody.appendChild(row);
@@ -310,7 +398,8 @@ function classifyInquiry(inquiry) {
     "pricing",
     "partner",
     "grow",
-    "sample"
+    "sample",
+    "referral"
   ];
 
   const hasHotSignal = hotSignals.some((signal) => text.includes(signal));
@@ -454,7 +543,7 @@ function renderTriageWorkflow(inquiries) {
           <div>
             <h3>${getCompany(inquiry)}</h3>
             <p class="triage-contact">
-              ${getContactName(inquiry)} · ${getEmail(inquiry)}
+              ${getContactName(inquiry)} | ${getEmail(inquiry)}
             </p>
           </div>
         </div>
@@ -539,26 +628,10 @@ function updateTriageCounts(triageItems, contactedState) {
     return contactedState[item.id]?.contacted;
   }).length;
 
-  const hotCountElement = document.getElementById("hotCount");
-  const warmCountElement = document.getElementById("warmCount");
-  const coldCountElement = document.getElementById("coldCount");
-  const contactedCountElement = document.getElementById("contactedCount");
-
-  if (hotCountElement) {
-    hotCountElement.textContent = hotCount;
-  }
-
-  if (warmCountElement) {
-    warmCountElement.textContent = warmCount;
-  }
-
-  if (coldCountElement) {
-    coldCountElement.textContent = coldCount;
-  }
-
-  if (contactedCountElement) {
-    contactedCountElement.textContent = contactedCount;
-  }
+  setText("hotCount", hotCount);
+  setText("warmCount", warmCount);
+  setText("coldCount", coldCount);
+  setText("contactedCount", contactedCount);
 }
 
 function formatDate(dateValue) {
