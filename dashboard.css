@@ -411,3 +411,11 @@ td {
     grid-template-columns: 1fr;
   }
 }
+.triage-toolbar input {
+  border: 1px solid #d6c7b7;
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: white;
+  color: #2f1b0c;
+  min-width: 240px;
+}
