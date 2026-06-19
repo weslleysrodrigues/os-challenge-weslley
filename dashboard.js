@@ -142,14 +142,16 @@ function getChannel(inquiry) {
 }
 
 function getRequestedVolume(inquiry) {
-  return Number(
-    inquiry.requested_volume_lbs_month ||
-    inquiry.requestedVolumeLbsMonth ||
-    inquiry.monthly_volume_lbs ||
-    inquiry.volume ||
-    inquiry.volume_lbs ||
-    0
-  ) || 0;
+  return (
+    Number(
+      inquiry.requested_volume_lbs_month ||
+        inquiry.requestedVolumeLbsMonth ||
+        inquiry.monthly_volume_lbs ||
+        inquiry.volume ||
+        inquiry.volume_lbs ||
+        0
+    ) || 0
+  );
 }
 
 function getReceivedDate(inquiry) {
@@ -312,7 +314,7 @@ function renderOperatorNotes(data) {
     </div>
 
     <div class="note">
-      Average sale value is <strong>$${Math.round(averageSale).toLocaleString()}</strong>. Use this as a benchmark when reviewing new opportunities.
+      Average sale value is <strong>$${Math.round(averageSale).toLocaleString()}</strong>. This can be used as a benchmark when reviewing new opportunities.
     </div>
 
     <div class="note">
@@ -360,12 +362,12 @@ function renderRecentInquiries(inquiries) {
 function getInquiryId(inquiry, index) {
   return String(
     inquiry.id ||
-    inquiry.inquiryId ||
-    inquiry.email ||
-    inquiry.cafe_name ||
-    inquiry.company ||
-    inquiry.customer ||
-    `inquiry-${index}`
+      inquiry.inquiryId ||
+      inquiry.email ||
+      inquiry.cafe_name ||
+      inquiry.company ||
+      inquiry.customer ||
+      `inquiry-${index}`
   );
 }
 
@@ -480,8 +482,16 @@ function getPriorityRank(level) {
   return 3;
 }
 
+function isClosedInquiry(inquiry) {
+  return String(getStatus(inquiry)).toLowerCase() === "closed";
+}
+
 function renderTriageWorkflow(inquiries) {
   window.currentInquiries = inquiries;
+
+  const activeInquiries = inquiries.filter((inquiry) => {
+    return !isClosedInquiry(inquiry);
+  });
 
   const list = document.getElementById("triageList");
   const filter = document.getElementById("triageFilter");
@@ -492,7 +502,7 @@ function renderTriageWorkflow(inquiries) {
 
   const contactedState = getContactedState();
 
-  let triageItems = buildTriageItems(inquiries);
+  let triageItems = buildTriageItems(activeInquiries);
 
   triageItems.sort((a, b) => {
     const contactedA = contactedState[a.id]?.contacted ? 1 : 0;
@@ -516,14 +526,14 @@ function renderTriageWorkflow(inquiries) {
     });
   }
 
-  updateTriageCounts(buildTriageItems(inquiries), contactedState);
+  updateTriageCounts(buildTriageItems(activeInquiries), contactedState);
 
   list.innerHTML = "";
 
   if (!triageItems.length) {
     list.innerHTML = `
       <div class="empty-state">
-        No inquiries found for this filter.
+        No active inquiries found for this filter.
       </div>
     `;
     return;
@@ -548,39 +558,39 @@ function renderTriageWorkflow(inquiries) {
           </div>
         </div>
 
-         <div class="triage-details-grid">
-  <div class="detail-item">
-    <span>Priority</span>
-    <strong class="priority-text ${item.classification.level}">
-      ${item.classification.label}
-    </strong>
-  </div>
+        <div class="triage-details-grid">
+          <div class="detail-item">
+            <span>Priority</span>
+            <strong class="priority-text ${item.classification.level}">
+              ${item.classification.label}
+            </strong>
+          </div>
 
-  <div class="detail-item">
-    <span>Status</span>
-    <strong>${getStatus(inquiry)}</strong>
-  </div>
+          <div class="detail-item">
+            <span>Status</span>
+            <strong>${getStatus(inquiry)}</strong>
+          </div>
 
-  <div class="detail-item">
-    <span>Region</span>
-    <strong>${getRegion(inquiry)}</strong>
-  </div>
+          <div class="detail-item">
+            <span>Region</span>
+            <strong>${getRegion(inquiry)}</strong>
+          </div>
 
-  <div class="detail-item">
-    <span>Channel</span>
-    <strong>${getChannel(inquiry)}</strong>
-  </div>
+          <div class="detail-item">
+            <span>Channel</span>
+            <strong>${getChannel(inquiry)}</strong>
+          </div>
 
-  <div class="detail-item">
-    <span>Requested Volume</span>
-    <strong>${getRequestedVolume(inquiry).toLocaleString()} lbs/month</strong>
-  </div>
+          <div class="detail-item">
+            <span>Requested Volume</span>
+            <strong>${getRequestedVolume(inquiry).toLocaleString()} lbs/month</strong>
+          </div>
 
-  <div class="detail-item">
-    <span>Received Date</span>
-    <strong>${getReceivedDate(inquiry)}</strong>
-  </div>
-</div>
+          <div class="detail-item">
+            <span>Received Date</span>
+            <strong>${getReceivedDate(inquiry)}</strong>
+          </div>
+        </div>
 
         <div class="triage-summary-text">
           <strong>Operator Summary:</strong>
