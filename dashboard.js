@@ -49,12 +49,51 @@ function getStatus(inquiry) {
 
 function getCompany(inquiry) {
   return (
+    inquiry.cafe_name ||
     inquiry.company ||
+    inquiry.company_name ||
+    inquiry.companyName ||
+    inquiry.business ||
+    inquiry.business_name ||
     inquiry.customer ||
-    inquiry.account ||
+    inquiry.customer_name ||
     inquiry.name ||
     "Unknown"
   );
+}
+  function getContactName(inquiry) {
+  return inquiry.contact_name || inquiry.contactName || "Unknown contact";
+}
+
+function getEmail(inquiry) {
+  return inquiry.email || "No email provided";
+}
+
+function getChannel(inquiry) {
+  return inquiry.channel || "Unknown channel";
+}
+
+function getRequestedVolume(inquiry) {
+  return Number(inquiry.requested_volume_lbs_month || inquiry.volume || 0);
+}
+
+function getReceivedDate(inquiry) {
+  return inquiry.received_date || inquiry.date || inquiry.created_at || "Unknown date";
+}
+
+function getInquiryMessage(inquiry) {
+  return inquiry.message || "No message provided.";
+}
+
+function getInquirySummary(inquiry) {
+  const volume = getRequestedVolume(inquiry);
+  const channel = getChannel(inquiry);
+  const region = getRegion(inquiry);
+  const status = getStatus(inquiry);
+  const message = getInquiryMessage(inquiry);
+
+  return `${getCompany(inquiry)} is a ${status} inquiry from ${region}, sourced through ${channel}. Requested volume is ${volume.toLocaleString()} lbs/month. Message: "${message}"`;
+}
 }
 
 function getPriority(inquiry) {
@@ -283,19 +322,57 @@ function getInquiryText(inquiry) {
 
 function classifyInquiry(inquiry) {
   const text = getInquiryText(inquiry);
-  const priority = String(getPriority(inquiry)).toLowerCase();
   const status = String(getStatus(inquiry)).toLowerCase();
+  const volume = getRequestedVolume(inquiry);
 
   const hotSignals = [
-    "high",
     "urgent",
-    "enterprise",
-    "large",
-    "bulk",
-    "wholesale",
     "asap",
     "immediately",
-    "rush"
+    "rush",
+    "wholesale",
+    "large",
+    "scale",
+    "growth",
+    "grow quickly",
+    "multiple locations"
+  ];
+
+  const warmSignals = [
+    "qualified",
+    "interested",
+    "quote",
+    "pricing",
+    "partner",
+    "grow",
+    "sample"
+  ];
+
+  const hasHotSignal = hotSignals.some((signal) => text.includes(signal));
+  const hasWarmSignal = warmSignals.some((signal) => text.includes(signal) || status.includes(signal));
+
+  if (volume >= 300 || hasHotSignal) {
+    return {
+      level: "hot",
+      label: "Hot",
+      reason: "High potential inquiry based on requested volume or strong buying/growth signals."
+    };
+  }
+
+  if (volume >= 100 || status === "qualified" || hasWarmSignal) {
+    return {
+      level: "warm",
+      label: "Warm",
+      reason: "Qualified opportunity with moderate volume or clear interest. Good follow-up candidate."
+    };
+  }
+
+  return {
+    level: "cold",
+    label: "Cold",
+    reason: "Lower-volume or lower-urgency inquiry. Review after higher-priority opportunities."
+  };
+}
   ];
 
   const warmSignals = [
@@ -446,44 +523,64 @@ window.currentAccounts = accounts;
     card.className = `triage-card ${isContacted ? "contacted" : ""}`;
 
     card.innerHTML = `
-      <div class="triage-main">
+  <div class="triage-main">
+    <div class="triage-title-row">
+      <div>
         <h3>${getCompany(inquiry)}</h3>
-
-        <div class="triage-meta">
-          <span class="badge badge-${item.classification.level}">
-            ${item.classification.label}
-          </span>
-
-          <span class="badge badge-status">
-            ${getStatus(inquiry)}
-          </span>
-
-          <span class="badge badge-status">
-            ${getRegion(inquiry)}
-          </span>
-
-          <span class="badge badge-status">
-            Priority: ${getPriority(inquiry)}
-          </span>
-        </div>
-
-        <p class="triage-reason">
-          ${item.classification.reason}
+        <p class="triage-contact">
+          ${getContactName(inquiry)} · ${getEmail(inquiry)}
         </p>
-
-        ${
-          isContacted
-            ? `<p class="triage-reason">Contacted on ${formatDate(contactedAt)}.</p>`
-            : ""
-        }
       </div>
+    </div>
 
-      <div class="triage-actions">
-        <button ${isContacted ? "disabled" : ""}>
-          ${isContacted ? "Contacted" : "Mark as Contacted"}
-        </button>
-      </div>
-    `;
+    <div class="triage-meta">
+      <span class="badge badge-${item.classification.level}">
+        ${item.classification.label}
+      </span>
+
+      <span class="badge badge-status">
+        Status: ${getStatus(inquiry)}
+      </span>
+
+      <span class="badge badge-status">
+        Region: ${getRegion(inquiry)}
+      </span>
+
+      <span class="badge badge-status">
+        Channel: ${getChannel(inquiry)}
+      </span>
+
+      <span class="badge badge-status">
+        Volume: ${getRequestedVolume(inquiry).toLocaleString()} lbs/month
+      </span>
+
+      <span class="badge badge-status">
+        Received: ${getReceivedDate(inquiry)}
+      </span>
+    </div>
+
+    <div class="triage-summary-text">
+      <strong>Operator Summary:</strong>
+      <p>${getInquirySummary(inquiry)}</p>
+    </div>
+
+    <p class="triage-reason">
+      <strong>Why ${item.classification.label}:</strong> ${item.classification.reason}
+    </p>
+
+    ${
+      isContacted
+        ? `<p class="triage-reason">Contacted on ${formatDate(contactedAt)}.</p>`
+        : ""
+    }
+  </div>
+
+  <div class="triage-actions">
+    <button ${isContacted ? "disabled" : ""}>
+      ${isContacted ? "Contacted" : "Mark as Contacted"}
+    </button>
+  </div>
+`;
 
     list.appendChild(card);
 
