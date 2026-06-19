@@ -548,31 +548,39 @@ function renderTriageWorkflow(inquiries) {
           </div>
         </div>
 
-        <div class="triage-meta">
-          <span class="badge badge-${item.classification.level}">
-            ${item.classification.label}
-          </span>
+         <div class="triage-details-grid">
+  <div class="detail-item">
+    <span>Priority</span>
+    <strong class="priority-text ${item.classification.level}">
+      ${item.classification.label}
+    </strong>
+  </div>
 
-          <span class="badge badge-status">
-            Status: ${getStatus(inquiry)}
-          </span>
+  <div class="detail-item">
+    <span>Status</span>
+    <strong>${getStatus(inquiry)}</strong>
+  </div>
 
-          <span class="badge badge-status">
-            Region: ${getRegion(inquiry)}
-          </span>
+  <div class="detail-item">
+    <span>Region</span>
+    <strong>${getRegion(inquiry)}</strong>
+  </div>
 
-          <span class="badge badge-status">
-            Channel: ${getChannel(inquiry)}
-          </span>
+  <div class="detail-item">
+    <span>Channel</span>
+    <strong>${getChannel(inquiry)}</strong>
+  </div>
 
-          <span class="badge badge-status">
-            Volume: ${getRequestedVolume(inquiry).toLocaleString()} lbs/month
-          </span>
+  <div class="detail-item">
+    <span>Requested Volume</span>
+    <strong>${getRequestedVolume(inquiry).toLocaleString()} lbs/month</strong>
+  </div>
 
-          <span class="badge badge-status">
-            Received: ${getReceivedDate(inquiry)}
-          </span>
-        </div>
+  <div class="detail-item">
+    <span>Received Date</span>
+    <strong>${getReceivedDate(inquiry)}</strong>
+  </div>
+</div>
 
         <div class="triage-summary-text">
           <strong>Operator Summary:</strong>
