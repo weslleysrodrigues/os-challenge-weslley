@@ -1,21 +1,21 @@
 async function loadDashboardData() {
   try {
     const salesResponse = await fetch("./data/sales.json");
-const inquiriesResponse = await fetch("./data/inquiries.json");
-const accountsResponse = await fetch("./data/accounts.json");
+    const inquiriesResponse = await fetch("./data/inquiries.json");
 
-const sales = await salesResponse.json();
-const inquiries = await inquiriesResponse.json();
-const accounts = await accountsResponse.json();
+    const sales = await salesResponse.json();
+    const inquiries = await inquiriesResponse.json();
 
-renderDashboard(sales, inquiries, accounts);
+    renderDashboard(sales, inquiries);
   } catch (error) {
     console.error("Error loading dashboard data:", error);
+
     document.body.innerHTML = `
       <main class="page">
         <div class="panel">
           <h1>Dashboard could not load</h1>
           <p>Please check if sales.json and inquiries.json exist inside the data folder.</p>
+          <p>Error: ${error.message}</p>
         </div>
       </main>
     `;
@@ -61,7 +61,8 @@ function getCompany(inquiry) {
     "Unknown"
   );
 }
-  function getContactName(inquiry) {
+
+function getContactName(inquiry) {
   return inquiry.contact_name || inquiry.contactName || "Unknown contact";
 }
 
@@ -94,13 +95,8 @@ function getInquirySummary(inquiry) {
 
   return `${getCompany(inquiry)} is a ${status} inquiry from ${region}, sourced through ${channel}. Requested volume is ${volume.toLocaleString()} lbs/month. Message: "${message}"`;
 }
-}
 
-function getPriority(inquiry) {
-  return inquiry.priority || inquiry.urgency || "Normal";
-}
-
-function renderDashboard(sales, inquiries, accounts) {
+function renderDashboard(sales, inquiries) {
   const totalRevenue = sales.reduce((sum, sale) => sum + getRevenue(sale), 0);
   const totalSales = sales.length;
 
@@ -116,19 +112,31 @@ function renderDashboard(sales, inquiries, accounts) {
     Object.entries(revenueByRegion).sort((a, b) => b[1] - a[1])[0]?.[0] ||
     "No data";
 
-  document.getElementById("totalRevenue").textContent =
-    "$" + Math.round(totalRevenue).toLocaleString();
+  const totalRevenueElement = document.getElementById("totalRevenue");
+  const totalSalesElement = document.getElementById("totalSales");
+  const newInquiriesElement = document.getElementById("newInquiries");
+  const topRegionElement = document.getElementById("topRegion");
 
-  document.getElementById("totalSales").textContent =
-    totalSales.toLocaleString();
+  if (totalRevenueElement) {
+    totalRevenueElement.textContent =
+      "$" + Math.round(totalRevenue).toLocaleString();
+  }
 
-  document.getElementById("newInquiries").textContent =
-    newInquiries.toLocaleString();
+  if (totalSalesElement) {
+    totalSalesElement.textContent = totalSales.toLocaleString();
+  }
 
-  document.getElementById("topRegion").textContent = topRegion;
+  if (newInquiriesElement) {
+    newInquiriesElement.textContent = newInquiries.toLocaleString();
+  }
+
+  if (topRegionElement) {
+    topRegionElement.textContent = topRegion;
+  }
 
   renderBarChart("revenueByRegion", revenueByRegion, "$");
   renderBarChart("inquiriesByStatus", inquiriesByStatus, "");
+
   renderOperatorNotes({
     totalRevenue,
     totalSales,
@@ -137,75 +145,9 @@ function renderDashboard(sales, inquiries, accounts) {
     revenueByRegion,
     inquiriesByStatus
   });
-  function findAccountForInquiry(inquiry, accounts) {
-  const inquiryAccountId =
-    inquiry.account_id ||
-    inquiry.accountId ||
-    inquiry.accountID ||
-    inquiry.account ||
-    inquiry.customer_id ||
-    inquiry.customerId;
 
-  if (!inquiryAccountId || !Array.isArray(accounts)) {
-    return null;
-  }
-
-  return accounts.find((account) => {
-    const accountId =
-      account.id ||
-      account.account_id ||
-      account.accountId ||
-      account.accountID ||
-      account.customer_id ||
-      account.customerId;
-
-    return String(accountId) === String(inquiryAccountId);
-  });
-}
-
-function getCompany(inquiry, accounts = []) {
-  const directCompany =
-    inquiry.company ||
-    inquiry.company_name ||
-    inquiry.companyName ||
-    inquiry.business ||
-    inquiry.business_name ||
-    inquiry.businessName ||
-    inquiry.customer ||
-    inquiry.customer_name ||
-    inquiry.customerName ||
-    inquiry.name ||
-    inquiry.organization ||
-    inquiry.organization_name;
-
-  if (directCompany) {
-    return directCompany;
-  }
-
-  const account = findAccountForInquiry(inquiry, accounts);
-
-  if (!account) {
-    return "Unknown";
-  }
-
-  return (
-    account.company ||
-    account.company_name ||
-    account.companyName ||
-    account.business ||
-    account.business_name ||
-    account.businessName ||
-    account.customer ||
-    account.customer_name ||
-    account.customerName ||
-    account.name ||
-    account.organization ||
-    account.organization_name ||
-    "Unknown"
-  );
-}
-renderRecentInquiries(inquiries, accounts);
-renderTriageWorkflow(inquiries, accounts);
+  renderRecentInquiries(inquiries);
+  renderTriageWorkflow(inquiries);
 }
 
 function groupRevenueByRegion(sales) {
@@ -234,6 +176,11 @@ function groupInquiriesByStatus(inquiries) {
 
 function renderBarChart(elementId, data, prefix) {
   const container = document.getElementById(elementId);
+
+  if (!container) {
+    return;
+  }
+
   container.innerHTML = "";
 
   const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
@@ -245,12 +192,13 @@ function renderBarChart(elementId, data, prefix) {
     const row = document.createElement("div");
     row.className = "bar-row";
 
-   row.innerHTML = `
-  <td>${getCompany(inquiry)}</td>
-  <td>${getContactName(inquiry)}</td>
-  <td>${getRegion(inquiry)}</td>
-  <td>${getStatus(inquiry)}</td>
-`;
+    row.innerHTML = `
+      <div class="bar-label">${label}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width: ${width}%"></div>
+      </div>
+      <div class="bar-value">${prefix}${Math.round(value).toLocaleString()}</div>
+    `;
 
     container.appendChild(row);
   });
@@ -258,6 +206,10 @@ function renderBarChart(elementId, data, prefix) {
 
 function renderOperatorNotes(data) {
   const notes = document.getElementById("operatorNotes");
+
+  if (!notes) {
+    return;
+  }
 
   const averageSale =
     data.totalSales > 0 ? data.totalRevenue / data.totalSales : 0;
@@ -285,30 +237,44 @@ function renderOperatorNotes(data) {
   `;
 }
 
-function renderRecentInquiries(inquiries, accounts = []) {
+function renderRecentInquiries(inquiries) {
   const tbody = document.getElementById("recentInquiries");
+
+  if (!tbody) {
+    return;
+  }
+
   tbody.innerHTML = "";
 
-  const recentInquiries = [...inquiries].slice(0, 6);
+  const recentInquiries = [...inquiries]
+    .sort((a, b) => {
+      const dateA = new Date(getReceivedDate(a)).getTime();
+      const dateB = new Date(getReceivedDate(b)).getTime();
+
+      return dateB - dateA;
+    })
+    .slice(0, 6);
 
   recentInquiries.forEach((inquiry) => {
     const row = document.createElement("tr");
 
     row.innerHTML = `
       <td>${getCompany(inquiry)}</td>
+      <td>${getContactName(inquiry)}</td>
       <td>${getRegion(inquiry)}</td>
       <td>${getStatus(inquiry)}</td>
-      <td>${getPriority(inquiry)}</td>
     `;
 
     tbody.appendChild(row);
   });
 }
+
 function getInquiryId(inquiry, index) {
   return String(
     inquiry.id ||
     inquiry.inquiryId ||
     inquiry.email ||
+    inquiry.cafe_name ||
     inquiry.company ||
     inquiry.customer ||
     `inquiry-${index}`
@@ -348,7 +314,10 @@ function classifyInquiry(inquiry) {
   ];
 
   const hasHotSignal = hotSignals.some((signal) => text.includes(signal));
-  const hasWarmSignal = warmSignals.some((signal) => text.includes(signal) || status.includes(signal));
+
+  const hasWarmSignal = warmSignals.some((signal) => {
+    return text.includes(signal) || status.includes(signal);
+  });
 
   if (volume >= 300 || hasHotSignal) {
     return {
@@ -370,47 +339,6 @@ function classifyInquiry(inquiry) {
     level: "cold",
     label: "Cold",
     reason: "Lower-volume or lower-urgency inquiry. Review after higher-priority opportunities."
-  };
-}
-  ];
-
-  const warmSignals = [
-    "medium",
-    "new",
-    "open",
-    "interested",
-    "quote",
-    "pricing"
-  ];
-
-  const hasHotSignal = hotSignals.some((signal) => {
-    return text.includes(signal) || priority.includes(signal);
-  });
-
-  if (hasHotSignal) {
-    return {
-      level: "hot",
-      label: "Hot",
-      reason: "High-priority or urgent wholesale opportunity. Review first."
-    };
-  }
-
-  const hasWarmSignal = warmSignals.some((signal) => {
-    return text.includes(signal) || priority.includes(signal) || status.includes(signal);
-  });
-
-  if (hasWarmSignal) {
-    return {
-      level: "warm",
-      label: "Warm",
-      reason: "Active or qualified inquiry with buying intent. Review after hot leads."
-    };
-  }
-
-  return {
-    level: "cold",
-    label: "Cold",
-    reason: "Lower urgency or less complete inquiry. Review after higher-priority items."
   };
 }
 
@@ -441,7 +369,7 @@ function markInquiryAsContacted(inquiryId) {
   };
 
   saveContactedState(contactedState);
-  renderTriageWorkflow(window.currentInquiries || [], window.currentAccounts || []);
+  renderTriageWorkflow(window.currentInquiries || []);
 }
 
 function buildTriageItems(inquiries) {
@@ -465,7 +393,6 @@ function getPriorityRank(level) {
 
 function renderTriageWorkflow(inquiries) {
   window.currentInquiries = inquiries;
-window.currentAccounts = accounts;
 
   const list = document.getElementById("triageList");
   const filter = document.getElementById("triageFilter");
@@ -522,64 +449,64 @@ window.currentAccounts = accounts;
     card.className = `triage-card ${isContacted ? "contacted" : ""}`;
 
     card.innerHTML = `
-  <div class="triage-main">
-    <div class="triage-title-row">
-      <div>
-        <h3>${getCompany(inquiry)}</h3>
-        <p class="triage-contact">
-          ${getContactName(inquiry)} · ${getEmail(inquiry)}
+      <div class="triage-main">
+        <div class="triage-title-row">
+          <div>
+            <h3>${getCompany(inquiry)}</h3>
+            <p class="triage-contact">
+              ${getContactName(inquiry)} · ${getEmail(inquiry)}
+            </p>
+          </div>
+        </div>
+
+        <div class="triage-meta">
+          <span class="badge badge-${item.classification.level}">
+            ${item.classification.label}
+          </span>
+
+          <span class="badge badge-status">
+            Status: ${getStatus(inquiry)}
+          </span>
+
+          <span class="badge badge-status">
+            Region: ${getRegion(inquiry)}
+          </span>
+
+          <span class="badge badge-status">
+            Channel: ${getChannel(inquiry)}
+          </span>
+
+          <span class="badge badge-status">
+            Volume: ${getRequestedVolume(inquiry).toLocaleString()} lbs/month
+          </span>
+
+          <span class="badge badge-status">
+            Received: ${getReceivedDate(inquiry)}
+          </span>
+        </div>
+
+        <div class="triage-summary-text">
+          <strong>Operator Summary:</strong>
+          <p>${getInquirySummary(inquiry)}</p>
+        </div>
+
+        <p class="triage-reason">
+          <strong>Why ${item.classification.label}:</strong> ${item.classification.reason}
         </p>
+
+        ${
+          isContacted
+            ? `<p class="triage-reason">Contacted on ${formatDate(contactedAt)}.</p>`
+            : ""
+        }
       </div>
-    </div>
 
-    <div class="triage-meta">
-      <span class="badge badge-${item.classification.level}">
-        ${item.classification.label}
-      </span>
-
-      <span class="badge badge-status">
-        Status: ${getStatus(inquiry)}
-      </span>
-
-      <span class="badge badge-status">
-        Region: ${getRegion(inquiry)}
-      </span>
-
-      <span class="badge badge-status">
-        Channel: ${getChannel(inquiry)}
-      </span>
-
-      <span class="badge badge-status">
-        Volume: ${getRequestedVolume(inquiry).toLocaleString()} lbs/month
-      </span>
-
-      <span class="badge badge-status">
-        Received: ${getReceivedDate(inquiry)}
-      </span>
-    </div>
-
-    <div class="triage-summary-text">
-      <strong>Operator Summary:</strong>
-      <p>${getInquirySummary(inquiry)}</p>
-    </div>
-
-    <p class="triage-reason">
-      <strong>Why ${item.classification.label}:</strong> ${item.classification.reason}
-    </p>
-
-    ${
-      isContacted
-        ? `<p class="triage-reason">Contacted on ${formatDate(contactedAt)}.</p>`
-        : ""
-    }
-  </div>
-
-  <div class="triage-actions">
-    <button ${isContacted ? "disabled" : ""}>
-      ${isContacted ? "Contacted" : "Mark as Contacted"}
-    </button>
-  </div>
-`;
+      <div class="triage-actions">
+        <button ${isContacted ? "disabled" : ""}>
+          ${isContacted ? "Contacted" : "Mark as Contacted"}
+        </button>
+      </div>
+    `;
 
     list.appendChild(card);
 
@@ -591,7 +518,7 @@ window.currentAccounts = accounts;
   });
 
   filter.onchange = function () {
-    renderTriageWorkflow(window.currentInquiries || [], window.currentAccounts || []);
+    renderTriageWorkflow(window.currentInquiries || []);
   };
 }
 
@@ -612,10 +539,26 @@ function updateTriageCounts(triageItems, contactedState) {
     return contactedState[item.id]?.contacted;
   }).length;
 
-  document.getElementById("hotCount").textContent = hotCount;
-  document.getElementById("warmCount").textContent = warmCount;
-  document.getElementById("coldCount").textContent = coldCount;
-  document.getElementById("contactedCount").textContent = contactedCount;
+  const hotCountElement = document.getElementById("hotCount");
+  const warmCountElement = document.getElementById("warmCount");
+  const coldCountElement = document.getElementById("coldCount");
+  const contactedCountElement = document.getElementById("contactedCount");
+
+  if (hotCountElement) {
+    hotCountElement.textContent = hotCount;
+  }
+
+  if (warmCountElement) {
+    warmCountElement.textContent = warmCount;
+  }
+
+  if (coldCountElement) {
+    coldCountElement.textContent = coldCount;
+  }
+
+  if (contactedCountElement) {
+    contactedCountElement.textContent = contactedCount;
+  }
 }
 
 function formatDate(dateValue) {
@@ -631,4 +574,5 @@ function formatDate(dateValue) {
 
   return date.toLocaleDateString();
 }
+
 loadDashboardData();
