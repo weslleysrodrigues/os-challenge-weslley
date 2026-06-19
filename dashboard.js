@@ -409,15 +409,19 @@ function renderTriageWorkflow(inquiries) {
       </div>
 
       <div class="triage-actions">
-        <button onclick="markInquiryAsContacted('${item.id}')" ${
-          isContacted ? "disabled" : ""
-        }>
+        <button ${isContacted ? "disabled" : ""}>
           ${isContacted ? "Contacted" : "Mark as Contacted"}
         </button>
       </div>
     `;
 
     list.appendChild(card);
+
+    const button = card.querySelector("button");
+
+    button.addEventListener("click", function () {
+      markInquiryAsContacted(item.id);
+    });
   });
 
   filter.onchange = function () {
