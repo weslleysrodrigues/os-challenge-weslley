@@ -486,19 +486,55 @@ function isClosedInquiry(inquiry) {
   return String(getStatus(inquiry)).toLowerCase() === "closed";
 }
 
+function getActiveInquiries(inquiries) {
+  return inquiries.filter((inquiry) => {
+    return !isClosedInquiry(inquiry);
+  });
+}
+
+function populateStatusFilter(activeInquiries) {
+  const statusFilter = document.getElementById("triageStatusFilter");
+
+  if (!statusFilter) {
+    return;
+  }
+
+  const currentValue = statusFilter.value || "all";
+
+  const statuses = [...new Set(activeInquiries.map((inquiry) => getStatus(inquiry)))]
+    .filter((status) => status && String(status).toLowerCase() !== "closed")
+    .sort();
+
+  statusFilter.innerHTML = `<option value="all">All active statuses</option>`;
+
+  statuses.forEach((status) => {
+    const option = document.createElement("option");
+    option.value = String(status).toLowerCase();
+    option.textContent = status;
+    statusFilter.appendChild(option);
+  });
+
+  const stillExists = Array.from(statusFilter.options).some((option) => {
+    return option.value === currentValue;
+  });
+
+  statusFilter.value = stillExists ? currentValue : "all";
+}
+
 function renderTriageWorkflow(inquiries) {
   window.currentInquiries = inquiries;
 
-  const activeInquiries = inquiries.filter((inquiry) => {
-    return !isClosedInquiry(inquiry);
-  });
+  const activeInquiries = getActiveInquiries(inquiries);
 
   const list = document.getElementById("triageList");
-  const filter = document.getElementById("triageFilter");
+  const priorityFilter = document.getElementById("triageFilter");
+  const statusFilter = document.getElementById("triageStatusFilter");
 
-  if (!list || !filter) {
+  if (!list || !priorityFilter) {
     return;
   }
+
+  populateStatusFilter(activeInquiries);
 
   const contactedState = getContactedState();
 
@@ -518,11 +554,18 @@ function renderTriageWorkflow(inquiries) {
     );
   });
 
-  const selectedFilter = filter.value;
+  const selectedPriority = priorityFilter.value;
+  const selectedStatus = statusFilter ? statusFilter.value : "all";
 
-  if (selectedFilter !== "all") {
+  if (selectedPriority !== "all") {
     triageItems = triageItems.filter((item) => {
-      return item.classification.level === selectedFilter;
+      return item.classification.level === selectedPriority;
+    });
+  }
+
+  if (selectedStatus !== "all") {
+    triageItems = triageItems.filter((item) => {
+      return String(getStatus(item.inquiry)).toLowerCase() === selectedStatus;
     });
   }
 
@@ -533,7 +576,7 @@ function renderTriageWorkflow(inquiries) {
   if (!triageItems.length) {
     list.innerHTML = `
       <div class="empty-state">
-        No active inquiries found for this filter.
+        No active inquiries found for the selected filters.
       </div>
     `;
     return;
@@ -603,7 +646,7 @@ function renderTriageWorkflow(inquiries) {
 
         ${
           isContacted
-            ? `<p class="triage-reason">Contacted on ${formatDate(contactedAt)}.</p>`
+            ? `<p class="triage-reason">Contacted on ${formatDate(contactedAt)}. This client is ready for follow-up.</p>`
             : ""
         }
       </div>
@@ -624,9 +667,15 @@ function renderTriageWorkflow(inquiries) {
     });
   });
 
-  filter.onchange = function () {
+  priorityFilter.onchange = function () {
     renderTriageWorkflow(window.currentInquiries || []);
   };
+
+  if (statusFilter) {
+    statusFilter.onchange = function () {
+      renderTriageWorkflow(window.currentInquiries || []);
+    };
+  }
 }
 
 function updateTriageCounts(triageItems, contactedState) {
