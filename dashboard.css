@@ -364,3 +364,50 @@ td {
 .triage-summary-text p {
   margin: 6px 0 0;
 }
+.triage-details-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 14px 0;
+}
+
+.detail-item {
+  background: #f8f4ef;
+  border: 1px solid #e7ded3;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.detail-item span {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.detail-item strong {
+  display: block;
+  font-size: 14px;
+  color: #2f1b0c;
+}
+
+.priority-text.hot {
+  color: #991b1b;
+}
+
+.priority-text.warm {
+  color: #92400e;
+}
+
+.priority-text.cold {
+  color: #075985;
+}
+
+@media (max-width: 900px) {
+  .triage-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
