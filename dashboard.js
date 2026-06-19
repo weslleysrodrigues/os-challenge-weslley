@@ -214,7 +214,7 @@ function renderDashboard(sales, inquiries, accounts) {
   });
 
   renderRecentInquiries(inquiries);
-  renderTriageWorkflow(inquiries);
+  renderTriageWorkflow(inquiries, accounts);
 }
 
 function setText(elementId, value) {
@@ -460,7 +460,7 @@ function markInquiryAsContacted(inquiryId) {
   };
 
   saveContactedState(contactedState);
-  renderTriageWorkflow(window.currentInquiries || []);
+  renderTriageWorkflow(window.currentInquiries || [], window.currentAccounts || []);
 }
 
 function buildTriageItems(inquiries) {
@@ -492,6 +492,123 @@ function getActiveInquiries(inquiries) {
   });
 }
 
+function getAccountId(account) {
+  return (
+    account.id ||
+    account.account_id ||
+    account.accountId ||
+    account.accountID ||
+    account.customer_id ||
+    account.customerId ||
+    ""
+  );
+}
+
+function getInquiryAccountId(inquiry) {
+  return (
+    inquiry.account_id ||
+    inquiry.accountId ||
+    inquiry.accountID ||
+    inquiry.account ||
+    inquiry.customer_id ||
+    inquiry.customerId ||
+    inquiry.account_ref ||
+    ""
+  );
+}
+
+function normalizeName(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function findAccountForInquiry(inquiry, accounts) {
+  const inquiryAccountId = getInquiryAccountId(inquiry);
+
+  if (inquiryAccountId) {
+    const matchedById = accounts.find((account) => {
+      return String(getAccountId(account)) === String(inquiryAccountId);
+    });
+
+    if (matchedById) {
+      return matchedById;
+    }
+  }
+
+  const inquiryName = normalizeName(getCompany(inquiry));
+
+  if (!inquiryName) {
+    return null;
+  }
+
+  return (
+    accounts.find((account) => {
+      const accountName = normalizeName(account.name || account.company || account.cafe_name);
+
+      return accountName && accountName === inquiryName;
+    }) || null
+  );
+}
+
+function getCustomerSince(inquiry, accounts) {
+  const account = findAccountForInquiry(inquiry, accounts);
+
+  if (!account) {
+    return "Prospect";
+  }
+
+  return (
+    account.customer_since ||
+    account.customerSince ||
+    account.created_at ||
+    account.createdAt ||
+    "Unknown"
+  );
+}
+
+function getInquiryCountForAccount(inquiry, inquiries, accounts) {
+  const account = findAccountForInquiry(inquiry, accounts);
+  const inquiryAccountId = getInquiryAccountId(inquiry);
+
+  let count = 0;
+
+  if (account && getAccountId(account)) {
+    const accountId = String(getAccountId(account));
+
+    count = inquiries.filter((item) => {
+      return String(getInquiryAccountId(item)) === accountId;
+    }).length;
+  }
+
+  if (!count && inquiryAccountId) {
+    count = inquiries.filter((item) => {
+      return String(getInquiryAccountId(item)) === String(inquiryAccountId);
+    }).length;
+  }
+
+  if (!count) {
+    const inquiryName = normalizeName(getCompany(inquiry));
+
+    count = inquiries.filter((item) => {
+      return normalizeName(getCompany(item)) === inquiryName;
+    }).length;
+  }
+
+  return count || 1;
+}
+
+function getInquiryCountLabel(inquiry, inquiries, accounts) {
+  const count = getInquiryCountForAccount(inquiry, inquiries, accounts);
+
+  if (count === 1) {
+    return "1 - New";
+  }
+
+  return `${count} - Returning`;
+}
+
 function populateStatusFilter(activeInquiries) {
   const statusFilter = document.getElementById("triageStatusFilter");
 
@@ -521,8 +638,9 @@ function populateStatusFilter(activeInquiries) {
   statusFilter.value = stillExists ? currentValue : "all";
 }
 
-function renderTriageWorkflow(inquiries) {
+function renderTriageWorkflow(inquiries, accounts = []) {
   window.currentInquiries = inquiries;
+  window.currentAccounts = accounts;
 
   const activeInquiries = getActiveInquiries(inquiries);
 
@@ -586,6 +704,8 @@ function renderTriageWorkflow(inquiries) {
     const inquiry = item.inquiry;
     const isContacted = contactedState[item.id]?.contacted;
     const contactedAt = contactedState[item.id]?.contactedAt;
+    const customerSince = getCustomerSince(inquiry, accounts);
+    const inquiryCountLabel = getInquiryCountLabel(inquiry, inquiries, accounts);
 
     const card = document.createElement("div");
     card.className = `triage-card ${isContacted ? "contacted" : ""}`;
@@ -633,6 +753,16 @@ function renderTriageWorkflow(inquiries) {
             <span>Received Date</span>
             <strong>${getReceivedDate(inquiry)}</strong>
           </div>
+
+          <div class="detail-item">
+            <span>Customer Since</span>
+            <strong>${customerSince}</strong>
+          </div>
+
+          <div class="detail-item">
+            <span>Number of Inquiries</span>
+            <strong>${inquiryCountLabel}</strong>
+          </div>
         </div>
 
         <div class="triage-summary-text">
@@ -668,12 +798,12 @@ function renderTriageWorkflow(inquiries) {
   });
 
   priorityFilter.onchange = function () {
-    renderTriageWorkflow(window.currentInquiries || []);
+    renderTriageWorkflow(window.currentInquiries || [], window.currentAccounts || []);
   };
 
   if (statusFilter) {
     statusFilter.onchange = function () {
-      renderTriageWorkflow(window.currentInquiries || []);
+      renderTriageWorkflow(window.currentInquiries || [], window.currentAccounts || []);
     };
   }
 }
