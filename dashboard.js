@@ -245,13 +245,12 @@ function renderBarChart(elementId, data, prefix) {
     const row = document.createElement("div");
     row.className = "bar-row";
 
-    row.innerHTML = `
-      <div class="bar-label">${label}</div>
-      <div class="bar-track">
-        <div class="bar-fill" style="width: ${width}%"></div>
-      </div>
-      <div class="bar-value">${prefix}${Math.round(value).toLocaleString()}</div>
-    `;
+   row.innerHTML = `
+  <td>${getCompany(inquiry)}</td>
+  <td>${getContactName(inquiry)}</td>
+  <td>${getRegion(inquiry)}</td>
+  <td>${getStatus(inquiry)}</td>
+`;
 
     container.appendChild(row);
   });
