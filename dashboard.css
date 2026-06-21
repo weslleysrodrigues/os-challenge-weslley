@@ -317,13 +317,24 @@ h1 {
   white-space: nowrap;
 }
 
+#inquiriesByRegionChart,
+#closedByRegionChart,
+#revenueMixByRegionChart {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
 .pie-chart-content {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 28px;
-  width: 100%;
-  min-height: 240px;
+  gap: 34px;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 260px;
+  margin: 0 auto;
   padding: 10px 0;
 }
 
@@ -339,8 +350,7 @@ h1 {
 .pie-legend {
   display: grid;
   gap: 10px;
-  min-width: 220px;
-  max-width: 360px;
+  width: 260px;
 }
 
 .pie-legend-item {
@@ -362,6 +372,7 @@ h1 {
   color: #2f1b0c;
   font-weight: 800;
   text-align: right;
+  white-space: nowrap;
 }
 
 .triage-panel {
@@ -608,6 +619,7 @@ h1 {
   .pie-chart-content {
     flex-direction: column;
     text-align: center;
+    width: 100%;
   }
 
   .pie-legend {
