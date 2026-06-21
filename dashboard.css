@@ -628,3 +628,30 @@ h1 {
   max-width: 190px;
   line-height: 1.4;
 }
+#inquiriesByRegionChart,
+#closedByRegionChart,
+#revenueMixByRegionChart {
+  justify-items: center;
+  text-align: center;
+}
+
+#inquiriesByRegionChart .pie-chart,
+#closedByRegionChart .pie-chart,
+#revenueMixByRegionChart .pie-chart {
+  justify-content: center;
+  width: 100%;
+}
+
+#inquiriesByRegionChart .pie-legend,
+#closedByRegionChart .pie-legend,
+#revenueMixByRegionChart .pie-legend {
+  width: 100%;
+  max-width: 420px;
+  text-align: left;
+}
+
+#inquiriesByRegionChart .pie-visual,
+#closedByRegionChart .pie-visual,
+#revenueMixByRegionChart .pie-visual {
+  margin: 0 auto;
+}
