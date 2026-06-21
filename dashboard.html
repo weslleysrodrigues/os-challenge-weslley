@@ -16,21 +16,36 @@
     <p class="eyebrow">Internal Command Center</p>
     <h1>Coffee Roaster Dashboard</h1>
     <p class="subtitle">
-      Track wholesale inquiry performance, regional demand, and follow-up priorities in one place.
+      Track wholesale inquiry performance, conversion, regional demand, sales, and follow-up priorities.
     </p>
   </div>
 </section>
 
-<section class="dashboard-controls">
-  <div class="filter-group">
-    <label for="monthFilter">Inquiry Month</label>
-    <select id="monthFilter">
-      <option value="all">All months</option>
-    </select>
+<section class="filter-panel">
+  <div>
+    <p class="filter-eyebrow">Dashboard Filters</p>
+    <h2>Focus the view</h2>
+    <p>
+      Use the filters below to review a specific inquiry month and understand which data is currently being shown.
+    </p>
+  </div>
+
+  <div class="filter-panel-controls">
+    <div class="filter-group">
+      <label for="monthFilter">Inquiry Month</label>
+      <select id="monthFilter">
+        <option value="all">All months</option>
+      </select>
+    </div>
+
+    <div class="active-filter-pill">
+      <span>Current View</span>
+      <strong id="currentMonthLabel">All months</strong>
+    </div>
   </div>
 </section>
 
-<section class="kpi-grid">
+<section class="kpi-grid dashboard-kpis">
   <div class="card">
     <p class="card-label">Total Inquiries</p>
     <h2 id="totalInquiries">0</h2>
@@ -49,10 +64,16 @@
     <span>Closed inquiries divided by total inquiries</span>
   </div>
 
+  <div class="card needs-action-card">
+    <p class="card-label">Needs Action</p>
+    <h2 id="needsAction">0</h2>
+    <span>Not closed and not contacted yet</span>
+  </div>
+
   <div class="card">
-    <p class="card-label">Requested Volume</p>
-    <h2 id="requestedVolume">0 lbs</h2>
-    <span>Total requested monthly volume</span>
+    <p class="card-label">Total Revenue</p>
+    <h2 id="totalRevenue">$0</h2>
+    <span>Revenue from sales.json</span>
   </div>
 </section>
 
@@ -67,49 +88,46 @@
 
   <div class="panel">
     <div class="panel-header">
-      <h2>Total Inquiries by Region</h2>
-      <p>Shows where inbound demand is coming from.</p>
+      <h2>Revenue by Region</h2>
+      <p>Sales revenue grouped by region from sales.json.</p>
     </div>
-    <div id="inquiriesByRegionChart" class="bar-chart"></div>
+    <div id="revenueByRegionChart" class="bar-chart"></div>
   </div>
 </section>
 
 <section class="grid-two">
   <div class="panel">
     <div class="panel-header">
+      <h2>Total Inquiries by Region</h2>
+      <p>Shows where inbound demand is coming from.</p>
+    </div>
+    <div id="inquiriesByRegionChart" class="pie-chart"></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
       <h2>Closed Inquiries by Region</h2>
       <p>Shows which regions are converting into closed opportunities.</p>
     </div>
-    <div id="closedByRegionChart" class="bar-chart"></div>
+    <div id="closedByRegionChart" class="pie-chart"></div>
+  </div>
+</section>
+
+<section class="grid-two">
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Sales by Region</h2>
+      <p>Number of sales grouped by region.</p>
+    </div>
+    <div id="salesByRegionChart" class="bar-chart"></div>
   </div>
 
-  <div class="panel insight-panel">
+  <div class="panel">
     <div class="panel-header">
-      <h2>Operational Snapshot</h2>
-      <p>Quick signals to help operators focus.</p>
+      <h2>Revenue Mix by Region</h2>
+      <p>Share of revenue contribution by region.</p>
     </div>
-
-    <div class="snapshot-grid">
-      <div>
-        <span>Top Region</span>
-        <strong id="topInquiryRegion">-</strong>
-      </div>
-
-      <div>
-        <span>Top Closed Region</span>
-        <strong id="topClosedRegion">-</strong>
-      </div>
-
-      <div>
-        <span>Active Pipeline</span>
-        <strong id="activePipeline">0</strong>
-      </div>
-
-      <div>
-        <span>Avg Requested Volume</span>
-        <strong id="avgRequestedVolume">0 lbs</strong>
-      </div>
-    </div>
+    <div id="revenueMixByRegionChart" class="pie-chart"></div>
   </div>
 </section>
 
@@ -143,32 +161,41 @@
     </div>
   </div>
 
-  <div class="triage-toolbar">
-  <label for="triageSearch">Search:</label>
-  <input
-    id="triageSearch"
-    type="text"
-    placeholder="Search by cafe or contact name"
-  />
+  <div class="triage-toolbar highlighted-toolbar">
+  <div class="toolbar-intro">
+    <p class="filter-eyebrow">Triage Filters</p>
+    <h3>Refine inquiry list</h3>
+    <p>Search, priority, and status filters update the list below.</p>
+  </div>
 
-  <label for="triageFilter">Priority:</label>
-  <select id="triageFilter">
-    <option value="all">All</option>
-    <option value="hot">Hot</option>
-    <option value="warm">Warm</option>
-    <option value="cold">Cold</option>
-  </select>
+  <div class="filter-group search-group">
+    <label for="triageSearch">Search</label>
+    <input
+      id="triageSearch"
+      type="text"
+      placeholder="Search by cafe, contact, or email"
+    />
+  </div>
 
-  <label for="triageStatusFilter">Status:</label>
-  <select id="triageStatusFilter">
-    <option value="all">All active statuses</option>
-  </select>
+  <div class="filter-group">
+    <label for="triageFilter">Priority</label>
+    <select id="triageFilter">
+      <option value="all">All priorities</option>
+      <option value="hot">Hot</option>
+      <option value="warm">Warm</option>
+      <option value="cold">Cold</option>
+    </select>
+  </div>
+
+  <div class="filter-group">
+    <label for="triageStatusFilter">Status</label>
+    <select id="triageStatusFilter">
+      <option value="all">All active statuses</option>
+    </select>
+  </div>
+
+  <div class="active-filter-pill">
+    <span>Current Triage View</span>
+    <strong id="currentTriageFilterLabel">All active inquiries</strong>
+  </div>
 </div>
-
-  <div id="triageList" class="triage-list"></div>
-</section>
-  </main>
-
-  <script src="dashboard.js"></script>
-</body>
-</html>
