@@ -25,10 +25,6 @@ async function loadDashboardData() {
     const inquiries = normalizeData(inquiriesRaw);
     const accounts = normalizeData(accountsRaw);
 
-    console.log("Loaded sales:", sales);
-    console.log("Loaded inquiries:", inquiries);
-    console.log("Loaded accounts:", accounts);
-
     renderDashboard(sales, inquiries, accounts);
   } catch (error) {
     console.error("Error loading dashboard data:", error);
@@ -73,6 +69,32 @@ function normalizeData(data) {
   const firstArray = Object.values(data).find((value) => Array.isArray(value));
 
   return firstArray || [];
+}
+
+function getInquiryId(inquiry, index) {
+  return String(
+    inquiry.id ||
+      inquiry.inquiryId ||
+      inquiry.email ||
+      inquiry.cafe_name ||
+      inquiry.company ||
+      inquiry.customer ||
+      `inquiry-${index}`
+  );
+}
+
+function getUniqueInquiries(inquiries) {
+  const uniqueMap = {};
+
+  inquiries.forEach((inquiry, index) => {
+    const id = getInquiryId(inquiry, index);
+
+    if (!uniqueMap[id]) {
+      uniqueMap[id] = inquiry;
+    }
+  });
+
+  return Object.values(uniqueMap);
 }
 
 function getRevenue(sale) {
@@ -134,7 +156,7 @@ function getEmail(inquiry) {
 }
 
 function getChannel(inquiry) {
-  return inquiry.channel || "Unknown channel";
+  return inquiry.channel || inquiry.source || inquiry.lead_source || inquiry.leadSource || "Unknown channel";
 }
 
 function getRequestedVolume(inquiry) {
@@ -207,6 +229,10 @@ function getInquirySummary(inquiry) {
 
 function isClosedInquiry(inquiry) {
   return String(getStatus(inquiry)).toLowerCase() === "closed";
+}
+
+function isQualifiedInquiry(inquiry) {
+  return String(getStatus(inquiry)).toLowerCase() === "qualified";
 }
 
 function getActiveInquiries(inquiries) {
@@ -313,17 +339,19 @@ function filterSalesByMonth(sales) {
 }
 
 function renderDashboard(sales, inquiries, accounts) {
+  const uniqueInquiries = getUniqueInquiries(inquiries);
+
   window.allSales = sales;
-  window.allInquiries = inquiries;
+  window.allInquiries = uniqueInquiries;
   window.currentAccounts = accounts;
 
-  populateMonthFilter(inquiries);
+  populateMonthFilter(uniqueInquiries);
 
-  const filteredInquiries = filterInquiriesByMonth(inquiries);
+  const filteredInquiries = filterInquiriesByMonth(uniqueInquiries);
   const filteredSales = filterSalesByMonth(sales);
 
   renderInquiryMetrics(filteredInquiries, filteredSales);
-  renderInquiryCharts(inquiries, filteredInquiries, filteredSales);
+  renderInquiryCharts(uniqueInquiries, filteredInquiries, filteredSales);
   renderTopProducts(filteredSales);
   renderTriageWorkflow(filteredInquiries, accounts);
   updateDashboardFilterLabel();
@@ -345,29 +373,31 @@ function renderInquiryMetrics(inquiries, sales) {
   const contactedState = getContactedState();
 
   const totalInquiries = inquiries.length;
+  const qualifiedInquiries = inquiries.filter((inquiry) => isQualifiedInquiry(inquiry)).length;
   const closedInquiries = inquiries.filter((inquiry) => isClosedInquiry(inquiry)).length;
-  const conversionRate =
-    totalInquiries > 0 ? (closedInquiries / totalInquiries) * 100 : 0;
 
   const activeInquiries = getActiveInquiries(inquiries);
 
   const needsAction = activeInquiries.filter((inquiry, index) => {
     const inquiryId = getInquiryId(inquiry, index);
-    return !contactedState[inquiryId]?.contacted;
+    const status = String(getStatus(inquiry)).toLowerCase();
+
+    return !contactedState[inquiryId]?.contacted && status !== "contacted";
   }).length;
 
   const totalRevenue = sales.reduce((sum, sale) => {
     return sum + getRevenue(sale);
   }, 0);
 
-  setText("totalInquiries", totalInquiries.toLocaleString());
-  setText("closedInquiries", closedInquiries.toLocaleString());
-  setText("conversionRate", `${conversionRate.toFixed(1)}%`);
   setText("needsAction", needsAction.toLocaleString());
+  setText("totalInquiries", totalInquiries.toLocaleString());
+  setText("qualifiedInquiries", qualifiedInquiries.toLocaleString());
+  setText("closedInquiries", closedInquiries.toLocaleString());
   setText("totalRevenue", `$${Math.round(totalRevenue).toLocaleString()}`);
 }
 
 function renderInquiryCharts(allInquiries, filteredInquiries, filteredSales) {
+  const inquiriesByChannel = groupCountByChannel(filteredInquiries);
   const closedByMonth = groupClosedByMonth(allInquiries);
   const inquiriesByRegion = groupCountByRegion(filteredInquiries);
   const closedByRegion = groupCountByRegion(
@@ -376,11 +406,12 @@ function renderInquiryCharts(allInquiries, filteredInquiries, filteredSales) {
   const revenueByRegion = groupRevenueByRegion(filteredSales);
   const salesByRegion = groupSalesByRegion(filteredSales);
 
+  renderBarChart("inquiriesByChannelChart", inquiriesByChannel, "", true);
   renderBarChart("closedByMonthChart", closedByMonth, "", true);
   renderBarChart("revenueByRegionChart", revenueByRegion, "$", false);
+  renderBarChart("salesByRegionChart", salesByRegion, "", false);
   renderPieChart("inquiriesByRegionChart", inquiriesByRegion);
   renderPieChart("closedByRegionChart", closedByRegion);
-  renderBarChart("salesByRegionChart", salesByRegion, "", false);
   renderPieChart("revenueMixByRegionChart", revenueByRegion, "$");
 }
 
@@ -556,6 +587,17 @@ function groupCountByRegion(inquiries) {
   return regionMap;
 }
 
+function groupCountByChannel(inquiries) {
+  const channelMap = {};
+
+  inquiries.forEach((inquiry) => {
+    const channel = getChannel(inquiry);
+    channelMap[channel] = (channelMap[channel] || 0) + 1;
+  });
+
+  return channelMap;
+}
+
 function groupClosedByMonth(inquiries) {
   const monthMap = {};
 
@@ -692,18 +734,6 @@ function renderPieChart(elementId, data, prefix = "") {
   `;
 
   container.appendChild(chart);
-}
-
-function getInquiryId(inquiry, index) {
-  return String(
-    inquiry.id ||
-      inquiry.inquiryId ||
-      inquiry.email ||
-      inquiry.cafe_name ||
-      inquiry.company ||
-      inquiry.customer ||
-      `inquiry-${index}`
-  );
 }
 
 function getInquiryText(inquiry) {
