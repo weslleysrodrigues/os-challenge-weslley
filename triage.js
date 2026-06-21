@@ -543,6 +543,19 @@ function renderTriageWorkflow(inquiries, accounts = []) {
 
     card.innerHTML = `
       <div class="triage-main">
+        <div class="triage-card-header">
+          <div class="triage-company-card">
+            <span>Company</span>
+            <strong>${getCompany(inquiry)}</strong>
+          </div>
+
+          <div class="triage-contact-card">
+            <span>Contact</span>
+            <strong>${getContactName(inquiry)}</strong>
+            <a href="mailto:${getEmail(inquiry)}">${getEmail(inquiry)}</a>
+          </div>
+        </div>
+
         <div class="triage-details-grid compact-triage-grid">
           <div class="detail-item">
             <span>Priority</span>
@@ -655,7 +668,12 @@ function openInquiryModal(inquiryId) {
   modalCompany.textContent = getCompany(inquiry);
 
   modalBody.innerHTML = `
-    <div class="modal-contact-card">
+    <div class="modal-company-card">
+      <div>
+        <span>Company</span>
+        <strong>${getCompany(inquiry)}</strong>
+      </div>
+
       <div>
         <span>Contact Name</span>
         <strong>${getContactName(inquiry)}</strong>
@@ -676,11 +694,6 @@ function openInquiryModal(inquiryId) {
       <div>
         <span>Status</span>
         <strong>${getStatus(inquiry)}</strong>
-      </div>
-
-      <div>
-        <span>Company</span>
-        <strong>${getCompany(inquiry)}</strong>
       </div>
 
       <div>
