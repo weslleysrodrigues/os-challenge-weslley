@@ -9,21 +9,21 @@
 
 <body>
   <main class="page">
-   <section class="hero">
-  <div class="hero-icon">☕</div>
+    <section class="hero">
+      <div class="hero-icon">☕</div>
 
-  <div class="hero-content">
-    <p class="eyebrow">Internal Command Center</p>
-    <h1>Coffee Roaster Dashboard</h1>
-    <p class="subtitle">
-      Track wholesale inquiry performance, conversion, regional demand, sales, and follow-up priorities.
-    </p>
-  </div>
+      <div class="hero-content">
+        <p class="eyebrow">Internal Command Center</p>
+        <h1>Coffee Roaster Dashboard</h1>
+        <p class="subtitle">
+          Track inquiry performance, conversion, regional demand, sales, and follow-up priorities.
+        </p>
+      </div>
 
-  <a class="hero-button" href="triage.html">
-    Open Triage Workflow
-  </a>
-</section>
+      <a class="hero-button" href="triage.html">
+        Open Triage Workflow
+      </a>
+    </section>
 
     <section class="filter-panel">
       <div>
@@ -50,42 +50,52 @@
     </section>
 
     <section class="kpi-grid dashboard-kpis">
-  <div class="card needs-action-card">
-    <p class="card-label">Needs Action</p>
-    <h2 id="needsAction">0</h2>
-    <span>Open inquiries that have not been contacted yet.</span>
-  </div>
+      <div class="card needs-action-card">
+        <p class="card-label">Needs Action</p>
+        <h2 id="needsAction">0</h2>
+        <span>Open inquiries that have not been contacted yet.</span>
+      </div>
 
-  <div class="card">
-    <p class="card-label">Total Inquiries</p>
-    <h2 id="totalInquiries">0</h2>
-    <span>All inquiries received in the selected month.</span>
-  </div>
+      <div class="card">
+        <p class="card-label">Total Inquiries</p>
+        <h2 id="totalInquiries">0</h2>
+        <span>All inquiries received in the selected month.</span>
+      </div>
 
-  <div class="card">
-    <p class="card-label">Closed Inquiries</p>
-    <h2 id="closedInquiries">0</h2>
-    <span>Inquiries already marked as closed.</span>
-  </div>
+      <div class="card">
+        <p class="card-label">Closed Inquiries</p>
+        <h2 id="closedInquiries">0</h2>
+        <span>Inquiries already marked as closed.</span>
+      </div>
 
-  <div class="card">
-    <p class="card-label">Conversion Rate</p>
-    <h2 id="conversionRate">0%</h2>
-    <span>Closed inquiries divided by total inquiries.</span>
-  </div>
+      <div class="card">
+        <p class="card-label">Conversion Rate</p>
+        <h2 id="conversionRate">0%</h2>
+        <span>Closed inquiries divided by total inquiries.</span>
+      </div>
 
-  <div class="card">
-    <p class="card-label">Total Revenue</p>
-    <h2 id="totalRevenue">$0</h2>
-    <span>Total sales revenue for the selected view.</span>
-  </div>
-</section>
+      <div class="card">
+        <p class="card-label">Total Revenue</p>
+        <h2 id="totalRevenue">$0</h2>
+        <span>Total sales revenue for the selected view.</span>
+      </div>
+    </section>
+
+    <section class="grid-two">
       <div class="panel">
         <div class="panel-header">
-       <h2>Revenue by Region</h2>
-        <p>Shows which regions are generating the most sales revenue.</p>
+          <h2>Closed Inquiries by Month</h2>
+          <p>Shows how many inquiries were closed each month. Use this to spot closing trends.</p>
         </div>
-        <div id="revenueByRegionChart" class="bar-chart"></div>
+        <div id="closedByMonthChart" class="chart-container"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Revenue by Region</h2>
+          <p>Shows which regions are generating the most sales revenue.</p>
+        </div>
+        <div id="revenueByRegionChart" class="chart-container"></div>
       </div>
     </section>
 
@@ -95,7 +105,7 @@
           <h2>Total Inquiries by Region</h2>
           <p>Shows where demand is coming from. Larger slices mean more inbound interest.</p>
         </div>
-        <div id="inquiriesByRegionChart" class="pie-chart"></div>
+        <div id="inquiriesByRegionChart" class="chart-container"></div>
       </div>
 
       <div class="panel">
@@ -103,7 +113,7 @@
           <h2>Closed Inquiries by Region</h2>
           <p>Shows which regions are turning inquiries into closed opportunities.</p>
         </div>
-        <div id="closedByRegionChart" class="pie-chart"></div>
+        <div id="closedByRegionChart" class="chart-container"></div>
       </div>
     </section>
 
@@ -113,7 +123,7 @@
           <h2>Sales by Region</h2>
           <p>Shows how many sales were recorded in each region.</p>
         </div>
-        <div id="salesByRegionChart" class="bar-chart"></div>
+        <div id="salesByRegionChart" class="chart-container"></div>
       </div>
 
       <div class="panel">
@@ -121,7 +131,7 @@
           <h2>Revenue Mix by Region</h2>
           <p>Shows each region’s share of total revenue.</p>
         </div>
-        <div id="revenueMixByRegionChart" class="pie-chart"></div>
+        <div id="revenueMixByRegionChart" class="chart-container"></div>
       </div>
     </section>
 
