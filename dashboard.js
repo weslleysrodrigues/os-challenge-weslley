@@ -1015,5 +1015,103 @@ function formatDate(dateValue) {
 
   return date.toLocaleDateString();
 }
+function getProductName(sale) {
+  return (
+    sale.product ||
+    sale.product_name ||
+    sale.productName ||
+    sale.item ||
+    sale.item_name ||
+    sale.itemName ||
+    sale.sku ||
+    sale.category ||
+    "Unknown Product"
+  );
+}
 
+function groupSalesByProduct(sales) {
+  const productMap = {};
+
+  sales.forEach((sale) => {
+    const productName = getProductName(sale);
+    const revenue = getRevenue(sale);
+
+    if (!productMap[productName]) {
+      productMap[productName] = {
+        product: productName,
+        salesCount: 0,
+        revenue: 0
+      };
+    }
+
+    productMap[productName].salesCount += 1;
+    productMap[productName].revenue += revenue;
+  });
+
+  return Object.values(productMap)
+    .map((item) => {
+      const aov = item.salesCount > 0 ? item.revenue / item.salesCount : 0;
+
+      return {
+        ...item,
+        aov
+      };
+    })
+    .sort((a, b) => b.salesCount - a.salesCount)
+    .slice(0, 5);
+}
+
+function renderTopProducts(sales) {
+  const container = document.getElementById("topProductsTable");
+
+  if (!container) {
+    return;
+  }
+
+  const topProducts = groupSalesByProduct(sales);
+
+  if (!topProducts.length) {
+    container.innerHTML = `<p class="empty-state">No product sales data available.</p>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="top-products-row header-row">
+      <div>Rank</div>
+      <div>Product</div>
+      <div>Total Sales</div>
+      <div>Total Revenue</div>
+      <div>AOV</div>
+    </div>
+  `;
+
+  topProducts.forEach((product, index) => {
+    const row = document.createElement("div");
+    row.className = "top-products-row";
+
+    row.innerHTML = `
+      <div>
+        <span class="product-rank">${index + 1}</span>
+      </div>
+
+      <div class="product-name">
+        ${product.product}
+      </div>
+
+      <div class="product-metric">
+        ${product.salesCount.toLocaleString()}
+      </div>
+
+      <div class="product-metric">
+        $${Math.round(product.revenue).toLocaleString()}
+      </div>
+
+      <div class="product-metric">
+        $${Math.round(product.aov).toLocaleString()}
+      </div>
+    `;
+
+    container.appendChild(row);
+  });
+}
 loadDashboardData();
