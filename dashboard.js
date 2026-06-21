@@ -523,7 +523,7 @@ function renderPieChart(elementId, data, prefix = "") {
   });
 
   const chart = document.createElement("div");
-  chart.className = "pie-chart";
+  chart.className = "pie-chart-content";
 
   const legendItems = entries.map(([label, value], index) => {
     const numericValue = Number(value);
