@@ -133,7 +133,13 @@ function getRegion(inquiry) {
 }
 
 function getChannel(inquiry) {
-  return inquiry.channel || inquiry.source || inquiry.lead_source || inquiry.leadSource || "Unknown channel";
+  return (
+    inquiry.channel ||
+    inquiry.source ||
+    inquiry.lead_source ||
+    inquiry.leadSource ||
+    "Unknown channel"
+  );
 }
 
 function getRequestedVolume(inquiry) {
@@ -380,8 +386,7 @@ function populateStatusFilter(activeInquiries) {
 
   const currentValue = statusFilter.value || "all";
 
-  const statuses = [...new Set(activeInquiries.map((inquiry) => getStatus(inquiry))]
-    )
+  const statuses = [...new Set(activeInquiries.map((inquiry) => getStatus(inquiry)))]
     .filter((status) => status && String(status).toLowerCase() !== "closed")
     .sort();
 
@@ -438,6 +443,7 @@ function updateTriageCounts(triageItems, contactedState) {
 
   const needsActionCount = triageItems.filter((item) => {
     const status = String(getStatus(item.inquiry)).toLowerCase();
+
     return !contactedState[item.id]?.contacted && status !== "contacted";
   }).length;
 
@@ -445,7 +451,7 @@ function updateTriageCounts(triageItems, contactedState) {
   setText("warmCount", warmCount);
   setText("coldCount", coldCount);
   setText("contactedCount", contactedCount);
-  setText("triageNeedsAction", needsActionCount);
+  setText("triageNeedsAction", needsActionCount.toLocaleString());
 }
 
 function renderTriageWorkflow(inquiries, accounts = []) {
