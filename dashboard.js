@@ -419,7 +419,8 @@ function renderTopProducts(sales) {
       <div>Rank</div>
       <div>Product</div>
       <div>Total Sales</div>
-      <div>Units LBS</div>
+      <div>Avg LBS / Sale</div>
+      <div>Total Revenue</div>
       <div>AOV</div>
     </div>
   `;
@@ -442,7 +443,11 @@ function renderTopProducts(sales) {
       </div>
 
       <div class="product-metric">
-        ${Math.round(product.totalUnits).toLocaleString()} lbs
+        ${product.avgUnits.toFixed(1)} lbs
+      </div>
+
+      <div class="product-metric">
+        $${product.revenue.toFixed(2)}
       </div>
 
       <div class="product-metric">
@@ -479,11 +484,13 @@ function groupSalesByProduct(sales) {
   return Object.values(productMap)
     .map((item) => {
       const aov = item.salesCount > 0 ? item.revenue / item.salesCount : 0;
+      const avgUnits = item.salesCount > 0 ? item.totalUnits / item.salesCount : 0;
 
       return {
         product: item.product,
         salesCount: item.salesCount,
         totalUnits: item.totalUnits,
+        avgUnits: avgUnits,
         revenue: item.revenue,
         aov: aov
       };
