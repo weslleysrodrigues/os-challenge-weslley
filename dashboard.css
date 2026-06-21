@@ -1,234 +1,757 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coffee Roaster Command Center</title>
-  <link rel="stylesheet" href="dashboard.css" />
-</head>
+* {
+  box-sizing: border-box;
+}
 
-<body>
-  <main class="page">
-    <section class="hero">
-      <div class="hero-icon">☕</div>
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f5f2ed;
+  color: #1f2933;
+}
 
-      <div class="hero-content">
-        <p class="eyebrow">Internal Command Center</p>
-        <h1>Coffee Roaster Dashboard</h1>
-        <p class="subtitle">
-          Track inquiry volume, qualified pipeline, regional demand, sales performance, and follow-up priorities.
-        </p>
-      </div>
+.page {
+  padding: 32px;
+}
 
-      <a class="hero-button" href="triage.html">
-        Open Triage Workflow
-      </a>
-    </section>
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 26px;
+  margin-bottom: 22px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #2f1b0c, #6f4728);
+  color: #fffaf3;
+  box-shadow: 0 12px 28px rgba(47, 27, 12, 0.16);
+}
 
-    <section class="filter-panel">
-      <div>
-        <p class="filter-eyebrow">Dashboard Filters</p>
-        <h2>Focus the view</h2>
-        <p>
-          Use the month filter to review inquiry and sales performance for a specific period.
-        </p>
-      </div>
+.hero-icon {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.14);
+  font-size: 36px;
+}
 
-      <div class="filter-panel-controls">
-        <div class="filter-group">
-          <label for="monthFilter">Inquiry Month</label>
-          <select id="monthFilter">
-            <option value="all">All months</option>
-          </select>
-        </div>
+.hero-content {
+  flex: 1;
+}
 
-        <div class="active-filter-pill">
-          <span>Current View</span>
-          <strong id="currentMonthLabel">All months</strong>
-        </div>
-      </div>
-    </section>
+.hero-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #fffaf3;
+  color: #2f1b0c;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+}
 
-    <section class="kpi-grid dashboard-kpis">
-      <div class="card needs-action-card">
-        <p class="card-label">Needs Action</p>
-        <h2 id="needsAction">0</h2>
-        <span>Open inquiries that have not been contacted yet.</span>
-      </div>
+.hero-button:hover {
+  background: #f2d6b3;
+}
 
-      <div class="card">
-        <p class="card-label">Total Inquiries</p>
-        <h2 id="totalInquiries">0</h2>
-        <span>Unique inquiries received in the selected view.</span>
-      </div>
+.eyebrow {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8b5e34;
+}
 
-      <div class="card">
-        <p class="card-label">Qualified Inquiries</p>
-        <h2 id="qualifiedInquiries">0</h2>
-        <span>Inquiries currently marked as qualified.</span>
-      </div>
+.hero .eyebrow {
+  color: #f2d6b3;
+}
 
-      <div class="card">
-        <p class="card-label">Closed Inquiries</p>
-        <h2 id="closedInquiries">0</h2>
-        <span>Inquiries currently marked as closed.</span>
-      </div>
+h1 {
+  margin: 0;
+  font-size: 34px;
+  color: #2f1b0c;
+}
 
-      <div class="card">
-        <p class="card-label">Total Revenue</p>
-        <h2 id="totalRevenue">$0</h2>
-        <span>Total sales revenue for the selected view.</span>
-      </div>
-    </section>
+.hero h1 {
+  color: #fffaf3;
+}
 
-    <section class="grid-two">
-      <div class="panel">
-        <div class="panel-header">
-          <h2>Inquiries by Channel</h2>
-          <p>Shows where inquiries came from. Higher bars show stronger lead sources.</p>
-        </div>
-        <div id="inquiriesByChannelChart" class="chart-container"></div>
-      </div>
+.subtitle {
+  margin: 10px 0 0;
+  color: #6b7280;
+  max-width: 760px;
+}
 
-      <div class="panel">
-        <div class="panel-header">
-          <h2>Closed Inquiries by Received Month</h2>
-          <p>Shows how many currently closed inquiries were received each month.</p>
-        </div>
-        <div id="closedByMonthChart" class="chart-container"></div>
-      </div>
-    </section>
+.hero .subtitle {
+  color: #ead8c4;
+}
 
-    <section class="grid-two">
-      <div class="panel">
-        <div class="panel-header">
-          <h2>Revenue by Region</h2>
-          <p>Shows which regions are generating the most sales revenue.</p>
-        </div>
-        <div id="revenueByRegionChart" class="chart-container"></div>
-      </div>
+.filter-panel {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 22px;
+  padding: 22px;
+  border: 2px solid #c7a17a;
+  border-radius: 20px;
+  background: #fff7ed;
+  box-shadow: 0 10px 24px rgba(47, 27, 12, 0.08);
+}
 
-      <div class="panel">
-        <div class="panel-header">
-          <h2>Sales by Region</h2>
-          <p>Shows how many sales records came from each region.</p>
-        </div>
-        <div id="salesByRegionChart" class="chart-container"></div>
-      </div>
-    </section>
+.filter-panel h2 {
+  margin: 4px 0 6px;
+  color: #2f1b0c;
+}
 
-    <section class="grid-two">
-      <div class="panel">
-        <div class="panel-header">
-          <h2>Total Inquiries by Region</h2>
-          <p>Shows where demand is coming from. Larger slices mean more inquiries.</p>
-        </div>
-        <div id="inquiriesByRegionChart" class="chart-container"></div>
-      </div>
+.filter-panel p {
+  margin: 0;
+  color: #6b7280;
+}
 
-      <div class="panel">
-        <div class="panel-header">
-          <h2>Closed Inquiries by Region</h2>
-          <p>Shows which regions have the most inquiries currently marked as closed.</p>
-        </div>
-        <div id="closedByRegionChart" class="chart-container"></div>
-      </div>
-    </section>
+.filter-eyebrow {
+  margin: 0;
+  color: #8b5e34;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 
-    <section class="grid-two">
-      <div class="panel">
-        <div class="panel-header">
-          <h2>Revenue Mix by Region</h2>
-          <p>Shows each region’s share of total sales revenue.</p>
-        </div>
-        <div id="revenueMixByRegionChart" class="chart-container"></div>
-      </div>
+.filter-panel-controls {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  align-items: end;
+}
 
-      <div class="panel">
-        <div class="panel-header">
-          <h2>Top 5 Best-Selling Products</h2>
-          <p>Shows the top products by sales count. AOV is revenue divided by sales count.</p>
-        </div>
+.active-filter-pill {
+  min-width: 170px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #2f1b0c;
+  color: #fffaf3;
+}
 
-        <div id="topProductsTable" class="top-products-table"></div>
-      </div>
-    </section>
+.active-filter-pill span {
+  display: block;
+  margin-bottom: 4px;
+  color: #f2d6b3;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
 
-    <section class="panel triage-panel">
-      <div class="panel-header triage-header">
-        <div>
-          <h2>Inquiry Triage Workflow</h2>
-          <p>
-            Review active inquiries by priority and status. Items marked as contacted are ready for follow-up.
-          </p>
-        </div>
-      </div>
+.active-filter-pill strong {
+  display: block;
+  font-size: 14px;
+}
 
-      <div class="triage-summary">
-        <div class="triage-stat hot-stat">
-          <span>Hot</span>
-          <strong id="hotCount">0</strong>
-        </div>
+.kpi-grid {
+  display: grid;
+  gap: 18px;
+  margin-bottom: 24px;
+}
 
-        <div class="triage-stat warm-stat">
-          <span>Warm</span>
-          <strong id="warmCount">0</strong>
-        </div>
+.dashboard-kpis {
+  grid-template-columns: repeat(5, 1fr);
+}
 
-        <div class="triage-stat cold-stat">
-          <span>Cold</span>
-          <strong id="coldCount">0</strong>
-        </div>
+.card,
+.panel {
+  background: #ffffff;
+  border: 1px solid #e7ded3;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(47, 27, 12, 0.06);
+}
 
-        <div class="triage-stat contacted-stat">
-          <span>Contacted</span>
-          <strong id="contactedCount">0</strong>
-        </div>
-      </div>
+.dashboard-kpis .card {
+  text-align: center;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  min-height: 150px;
+}
 
-      <div class="triage-toolbar highlighted-toolbar">
-        <div class="toolbar-intro">
-          <p class="filter-eyebrow">Triage Filters</p>
-          <h3>Refine inquiry list</h3>
-          <p>Search, priority, and status filters update the list below.</p>
-        </div>
+.card-label {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+}
 
-        <div class="filter-group search-group">
-          <label for="triageSearch">Search</label>
-          <input
-            id="triageSearch"
-            type="text"
-            placeholder="Search by cafe, contact, or email"
-          />
-        </div>
+.dashboard-kpis .card-label {
+  font-weight: 700;
+}
 
-        <div class="filter-group">
-          <label for="triageFilter">Priority</label>
-          <select id="triageFilter">
-            <option value="all">All priorities</option>
-            <option value="hot">Hot</option>
-            <option value="warm">Warm</option>
-            <option value="cold">Cold</option>
-          </select>
-        </div>
+.card h2 {
+  margin: 12px 0 8px;
+  font-size: 30px;
+  color: #2f1b0c;
+}
 
-        <div class="filter-group">
-          <label for="triageStatusFilter">Status</label>
-          <select id="triageStatusFilter">
-            <option value="all">All active statuses</option>
-          </select>
-        </div>
+.dashboard-kpis .card h2 {
+  font-size: 34px;
+}
 
-        <div class="active-filter-pill">
-          <span>Current Triage View</span>
-          <strong id="currentTriageFilterLabel">All active inquiries</strong>
-        </div>
-      </div>
+.card span {
+  font-size: 13px;
+  color: #6b7280;
+}
 
-      <div id="triageList" class="triage-list"></div>
-    </section>
-  </main>
+.dashboard-kpis .card span {
+  max-width: 190px;
+  line-height: 1.4;
+}
 
-  <script src="dashboard.js"></script>
-</body>
-</html>
+.needs-action-card {
+  border-color: #c7a17a;
+  background: #fffaf3;
+}
+
+.needs-action-card h2 {
+  color: #8b3a16;
+}
+
+.grid-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.panel {
+  overflow: hidden;
+}
+
+.panel-header h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #2f1b0c;
+}
+
+.panel-header p {
+  margin: 8px 0 20px;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.chart-container {
+  width: 100%;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 150px 1fr 110px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  font-size: 14px;
+}
+
+.bar-label {
+  font-weight: 600;
+}
+
+.bar-track {
+  height: 14px;
+  background: #ede6dc;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: #8b5e34;
+  border-radius: 999px;
+}
+
+.bar-value {
+  text-align: right;
+  font-weight: 700;
+  color: #2f1b0c;
+}
+
+.column-chart {
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 14px;
+  min-height: 220px;
+  padding-top: 22px;
+  overflow-x: auto;
+}
+
+.column-item {
+  display: grid;
+  justify-items: center;
+  align-items: end;
+  min-width: 72px;
+  gap: 8px;
+}
+
+.column-value {
+  color: #2f1b0c;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.column-bar {
+  width: 42px;
+  border-radius: 10px 10px 0 0;
+  background: linear-gradient(180deg, #c7a17a, #6f4728);
+}
+
+.column-label {
+  color: #6b7280;
+  font-size: 12px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+#inquiriesByRegionChart,
+#closedByRegionChart,
+#revenueMixByRegionChart {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.pie-chart-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 34px;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 260px;
+  margin: 0 auto;
+  padding: 10px 0;
+}
+
+.pie-visual {
+  flex: 0 0 auto;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: conic-gradient(#8b5e34 0deg, #8b5e34 360deg);
+  box-shadow: inset 0 0 0 34px #ffffff, 0 8px 18px rgba(47, 27, 12, 0.12);
+}
+
+.pie-legend {
+  display: grid;
+  gap: 10px;
+  width: 260px;
+}
+
+.pie-legend-item {
+  display: grid;
+  grid-template-columns: 14px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  color: #374151;
+  font-size: 14px;
+}
+
+.pie-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
+.pie-value {
+  color: #2f1b0c;
+  font-weight: 800;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.top-products-table {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.top-products-row {
+  display: grid;
+  grid-template-columns: 70px 1.8fr 120px 140px 150px 120px;
+  gap: 14px;
+  align-items: center;
+  min-width: 880px;
+  padding: 14px 0;
+  border-bottom: 1px solid #e7ded3;
+}
+
+.top-products-row:last-child {
+  border-bottom: none;
+}
+
+.top-products-row.header-row {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.product-rank {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #fff7ed;
+  color: #8b5e34;
+  font-weight: 800;
+}
+
+.product-name {
+  color: #2f1b0c;
+  font-weight: 800;
+}
+
+.product-metric {
+  color: #374151;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.triage-panel {
+  margin-top: 24px;
+}
+
+.triage-header {
+  margin-bottom: 18px;
+}
+
+.triage-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin: 18px 0 20px;
+}
+
+.triage-stat {
+  border: 1px solid #e7ded3;
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: #f8f4ef;
+}
+
+.triage-stat span {
+  display: block;
+  margin-bottom: 6px;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.triage-stat strong {
+  display: block;
+  color: #2f1b0c;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.hot-stat {
+  border-left: 5px solid #991b1b;
+}
+
+.warm-stat {
+  border-left: 5px solid #92400e;
+}
+
+.cold-stat {
+  border-left: 5px solid #075985;
+}
+
+.contacted-stat {
+  border-left: 5px solid #4b5563;
+}
+
+.highlighted-toolbar {
+  display: grid;
+  grid-template-columns: 1.3fr 1.5fr 1fr 1fr 1.2fr;
+  gap: 14px;
+  align-items: end;
+  margin: 18px 0 22px;
+  padding: 18px;
+  border: 2px solid #c7a17a;
+  border-radius: 18px;
+  background: #fff7ed;
+  box-shadow: 0 8px 18px rgba(47, 27, 12, 0.08);
+}
+
+.toolbar-intro h3 {
+  margin: 4px 0 4px;
+  color: #2f1b0c;
+}
+
+.toolbar-intro p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.filter-group {
+  display: grid;
+  gap: 6px;
+}
+
+.filter-group label {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.filter-group input,
+.filter-group select {
+  width: 100%;
+  border: 1px solid #d6c7b7;
+  border-radius: 12px;
+  padding: 11px 12px;
+  background: #ffffff;
+  color: #2f1b0c;
+  font-size: 14px;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+  outline: 3px solid rgba(199, 161, 122, 0.35);
+  border-color: #8b5e34;
+}
+
+.triage-list {
+  display: grid;
+  gap: 14px;
+}
+
+.triage-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 18px;
+  padding: 16px;
+  border: 1px solid #e7ded3;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.triage-card.contacted {
+  opacity: 0.72;
+  background: #f9fafb;
+}
+
+.triage-main h3 {
+  margin: 0 0 8px;
+  color: #2f1b0c;
+}
+
+.triage-contact {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.triage-details-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 14px 0;
+}
+
+.detail-item {
+  background: #f8f4ef;
+  border: 1px solid #e7ded3;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.detail-item span {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.detail-item strong {
+  display: block;
+  font-size: 14px;
+  color: #2f1b0c;
+}
+
+.priority-text.hot {
+  color: #991b1b;
+}
+
+.priority-text.warm {
+  color: #92400e;
+}
+
+.priority-text.cold {
+  color: #075985;
+}
+
+.triage-summary-text {
+  margin-top: 12px;
+  padding: 14px;
+  background: #f8f4ef;
+  border: 1px solid #e7ded3;
+  border-radius: 12px;
+  color: #374151;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.triage-summary-text p {
+  margin: 6px 0 0;
+}
+
+.triage-reason {
+  margin: 10px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.triage-actions {
+  display: flex;
+  align-items: center;
+}
+
+.triage-actions button {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: #8b5e34;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.triage-actions button:hover {
+  background: #6f4728;
+}
+
+.triage-actions button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.empty-state {
+  padding: 18px;
+  border-radius: 14px;
+  background: #f8f4ef;
+  border: 1px solid #e7ded3;
+  color: #6b7280;
+}
+
+@media (max-width: 1200px) {
+  .dashboard-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .pie-chart-content {
+    flex-direction: column;
+    text-align: center;
+    width: 100%;
+  }
+
+  .pie-legend {
+    width: 100%;
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .filter-panel,
+  .highlighted-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-panel-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .triage-details-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .page {
+    padding: 20px;
+  }
+
+  .hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .hero-button {
+    width: 100%;
+  }
+
+  .grid-two {
+    grid-template-columns: 1fr;
+  }
+
+  .triage-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .triage-card {
+    grid-template-columns: 1fr;
+  }
+
+  .triage-actions {
+    justify-content: flex-start;
+  }
+
+  .bar-row {
+    grid-template-columns: 100px 1fr 80px;
+  }
+}
+
+@media (max-width: 700px) {
+  .dashboard-kpis {
+    grid-template-columns: 1fr;
+  }
+
+  .triage-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .triage-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pie-visual {
+    width: 190px;
+    height: 190px;
+  }
+
+  .pie-legend-item {
+    grid-template-columns: 14px 1fr;
+  }
+
+  .pie-value {
+    grid-column: 2;
+    text-align: left;
+  }
+}
