@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inquiry Triage Workflow</title>
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+
+<body>
+  <main class="page">
+    <section class="hero triage-hero">
+      <div class="hero-icon">📋</div>
+
+      <div class="hero-content">
+        <p class="eyebrow">Operator Workflow</p>
+        <h1>Inquiry Triage Workflow</h1>
+        <p class="subtitle">
+          Work through inbound wholesale inquiries, prioritize the best opportunities, and mark follow-ups as contacted.
+        </p>
+      </div>
+
+      <a class="hero-button" href="dashboard.html">
+        Back to Dashboard
+      </a>
+    </section>
+
+    <section class="panel triage-notes-panel">
+      <div class="panel-header">
+        <h2>How this workflow prioritizes inquiries</h2>
+        <p>
+          Hot inquiries have high volume or urgent buying signals. Warm inquiries show qualified interest or moderate volume. Cold inquiries are lower urgency or lower volume.
+        </p>
+      </div>
+
+      <div class="workflow-rule-grid">
+        <div>
+          <strong>Hot</strong>
+          <span>300+ lbs/month or strong urgency/growth signals.</span>
+        </div>
+
+        <div>
+          <strong>Warm</strong>
+          <span>100+ lbs/month, qualified status, referral, quote, pricing, or partner signals.</span>
+        </div>
+
+        <div>
+          <strong>Cold</strong>
+          <span>Lower volume or lower urgency. Review after higher-priority inquiries.</span>
+        </div>
+
+        <div>
+          <strong>Contacted</strong>
+          <span>Saved in localStorage, so the state remains after refreshing the page.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="kpi-grid triage-kpis">
+      <div class="card needs-action-card">
+        <p class="card-label">Needs Action</p>
+        <h2 id="triageNeedsAction">0</h2>
+        <span>Active inquiries not contacted yet.</span>
+      </div>
+
+      <div class="card">
+        <p class="card-label">Hot</p>
+        <h2 id="hotCount">0</h2>
+        <span>Highest-priority inquiries.</span>
+      </div>
+
+      <div class="card">
+        <p class="card-label">Warm</p>
+        <h2 id="warmCount">0</h2>
+        <span>Good follow-up candidates.</span>
+      </div>
+
+      <div class="card">
+        <p class="card-label">Cold</p>
+        <h2 id="coldCount">0</h2>
+        <span>Lower-priority inquiries.</span>
+      </div>
+
+      <div class="card">
+        <p class="card-label">Contacted</p>
+        <h2 id="contactedCount">0</h2>
+        <span>Already marked as contacted.</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Inquiry Queue</h2>
+        <p>
+          Use the filters to find the right inquiry. Click View Details to open the full inquiry information.
+        </p>
+      </div>
+
+      <div class="triage-toolbar highlighted-toolbar triage-page-toolbar">
+        <div class="toolbar-intro">
+          <p class="filter-eyebrow">Triage Filters</p>
+          <h3>Refine inquiry list</h3>
+          <p>Search, priority, and status filters update the queue below.</p>
+        </div>
+
+        <div class="filter-group search-group">
+          <label for="triageSearch">Search</label>
+          <input
+            id="triageSearch"
+            type="text"
+            placeholder="Search by cafe, contact, or email"
+          />
+        </div>
+
+        <div class="filter-group">
+          <label for="triageFilter">Priority</label>
+          <select id="triageFilter">
+            <option value="all">All priorities</option>
+            <option value="hot">Hot</option>
+            <option value="warm">Warm</option>
+            <option value="cold">Cold</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="triageStatusFilter">Status</label>
+          <select id="triageStatusFilter">
+            <option value="all">All active statuses</option>
+          </select>
+        </div>
+
+        <div class="active-filter-pill">
+          <span>Current View</span>
+          <strong id="currentTriageFilterLabel">All active inquiries</strong>
+        </div>
+      </div>
+
+      <div id="triageList" class="triage-list"></div>
+    </section>
+  </main>
+
+  <div id="inquiryModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <p class="filter-eyebrow">Inquiry Detail</p>
+          <h2 id="modalCompany">Inquiry</h2>
+        </div>
+
+        <button id="closeModalButton" class="modal-close-button" type="button">
+          Close
+        </button>
+      </div>
+
+      <div id="modalBody" class="modal-body"></div>
+
+      <div class="modal-actions">
+        <button id="modalContactButton" class="primary-action-button" type="button">
+          Mark as Contacted
+        </button>
+
+        <button id="modalCloseBottomButton" class="secondary-action-button" type="button">
+          Back to Queue
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="triage.js"></script>
+</body>
+</html>
