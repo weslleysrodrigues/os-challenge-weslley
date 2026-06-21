@@ -20,8 +20,8 @@
         </p>
       </div>
 
-      <a class="hero-button" href="#triage-section">
-        Go to Triage Workflow
+      <a class="hero-button" href="triage.html">
+        Open Triage Workflow
       </a>
     </section>
 
@@ -152,80 +152,6 @@
 
         <div id="topProductsTable" class="top-products-table"></div>
       </div>
-    </section>
-
-    <section id="triage-section" class="panel triage-panel">
-      <div class="panel-header triage-header">
-        <div>
-          <h2>Inquiry Triage Workflow</h2>
-          <p>
-            Review active inquiries by priority and status. Items marked as contacted are ready for follow-up.
-          </p>
-        </div>
-      </div>
-
-      <div class="triage-summary">
-        <div class="triage-stat hot-stat">
-          <span>Hot</span>
-          <strong id="hotCount">0</strong>
-        </div>
-
-        <div class="triage-stat warm-stat">
-          <span>Warm</span>
-          <strong id="warmCount">0</strong>
-        </div>
-
-        <div class="triage-stat cold-stat">
-          <span>Cold</span>
-          <strong id="coldCount">0</strong>
-        </div>
-
-        <div class="triage-stat contacted-stat">
-          <span>Contacted</span>
-          <strong id="contactedCount">0</strong>
-        </div>
-      </div>
-
-      <div class="triage-toolbar highlighted-toolbar">
-        <div class="toolbar-intro">
-          <p class="filter-eyebrow">Triage Filters</p>
-          <h3>Refine inquiry list</h3>
-          <p>Search, priority, and status filters update the list below.</p>
-        </div>
-
-        <div class="filter-group search-group">
-          <label for="triageSearch">Search</label>
-          <input
-            id="triageSearch"
-            type="text"
-            placeholder="Search by cafe, contact, or email"
-          />
-        </div>
-
-        <div class="filter-group">
-          <label for="triageFilter">Priority</label>
-          <select id="triageFilter">
-            <option value="all">All priorities</option>
-            <option value="hot">Hot</option>
-            <option value="warm">Warm</option>
-            <option value="cold">Cold</option>
-          </select>
-        </div>
-
-        <div class="filter-group">
-          <label for="triageStatusFilter">Status</label>
-          <select id="triageStatusFilter">
-            <option value="all">All active statuses</option>
-          </select>
-        </div>
-
-        <div class="active-filter-pill">
-          <span>Current Triage View</span>
-          <strong id="currentTriageFilterLabel">All active inquiries</strong>
-        </div>
-      </div>
-
-      <div id="triageList" class="triage-list"></div>
     </section>
   </main>
 
