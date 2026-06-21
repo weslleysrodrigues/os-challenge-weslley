@@ -712,7 +712,7 @@ h1 {
 
 .top-products-row {
   display: grid;
-  grid-template-columns: 60px 1.5fr 1fr 1fr 1fr;
+  grid-template-columns: 70px 1.5fr 0.9fr 1fr 1fr 0.8fr;
   gap: 14px;
   align-items: center;
   padding: 14px 0;
