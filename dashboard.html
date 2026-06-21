@@ -9,193 +9,203 @@
 
 <body>
   <main class="page">
-   <section class="hero">
-  <div class="hero-icon">☕</div>
+    <section class="hero">
+      <div class="hero-icon">☕</div>
 
-  <div>
-    <p class="eyebrow">Internal Command Center</p>
-    <h1>Coffee Roaster Dashboard</h1>
-    <p class="subtitle">
-      Track wholesale inquiry performance, conversion, regional demand, sales, and follow-up priorities.
-    </p>
-  </div>
-</section>
+      <div>
+        <p class="eyebrow">Internal Command Center</p>
+        <h1>Coffee Roaster Dashboard</h1>
+        <p class="subtitle">
+          Track wholesale inquiry performance, conversion, regional demand, sales, and follow-up priorities.
+        </p>
+      </div>
+    </section>
 
-<section class="filter-panel">
-  <div>
-    <p class="filter-eyebrow">Dashboard Filters</p>
-    <h2>Focus the view</h2>
-    <p>
-      Use the filters below to review a specific inquiry month and understand which data is currently being shown.
-    </p>
-  </div>
+    <section class="filter-panel">
+      <div>
+        <p class="filter-eyebrow">Dashboard Filters</p>
+        <h2>Focus the view</h2>
+        <p>
+          Use the month filter to review a specific inquiry period. The current selection is shown on the right.
+        </p>
+      </div>
 
-  <div class="filter-panel-controls">
-    <div class="filter-group">
-      <label for="monthFilter">Inquiry Month</label>
-      <select id="monthFilter">
-        <option value="all">All months</option>
-      </select>
-    </div>
+      <div class="filter-panel-controls">
+        <div class="filter-group">
+          <label for="monthFilter">Inquiry Month</label>
+          <select id="monthFilter">
+            <option value="all">All months</option>
+          </select>
+        </div>
 
-    <div class="active-filter-pill">
-      <span>Current View</span>
-      <strong id="currentMonthLabel">All months</strong>
-    </div>
-  </div>
-</section>
+        <div class="active-filter-pill">
+          <span>Current View</span>
+          <strong id="currentMonthLabel">All months</strong>
+        </div>
+      </div>
+    </section>
 
-<section class="kpi-grid dashboard-kpis">
-  <div class="card">
-    <p class="card-label">Total Inquiries</p>
-    <h2 id="totalInquiries">0</h2>
-    <span>Inbound wholesale inquiries</span>
-  </div>
+    <section class="kpi-grid dashboard-kpis">
+      <div class="card">
+        <p class="card-label">Total Inquiries</p>
+        <h2 id="totalInquiries">0</h2>
+        <span>Inbound wholesale inquiries</span>
+      </div>
 
-  <div class="card">
-    <p class="card-label">Closed Inquiries</p>
-    <h2 id="closedInquiries">0</h2>
-    <span>Inquiries marked as closed</span>
-  </div>
+      <div class="card">
+        <p class="card-label">Closed Inquiries</p>
+        <h2 id="closedInquiries">0</h2>
+        <span>Inquiries marked as closed</span>
+      </div>
 
-  <div class="card">
-    <p class="card-label">Conversion Rate</p>
-    <h2 id="conversionRate">0%</h2>
-    <span>Closed inquiries divided by total inquiries</span>
-  </div>
+      <div class="card">
+        <p class="card-label">Conversion Rate</p>
+        <h2 id="conversionRate">0%</h2>
+        <span>Closed inquiries divided by total inquiries</span>
+      </div>
 
-  <div class="card needs-action-card">
-    <p class="card-label">Needs Action</p>
-    <h2 id="needsAction">0</h2>
-    <span>Not closed and not contacted yet</span>
-  </div>
+      <div class="card needs-action-card">
+        <p class="card-label">Needs Action</p>
+        <h2 id="needsAction">0</h2>
+        <span>Not closed and not contacted yet</span>
+      </div>
 
-  <div class="card">
-    <p class="card-label">Total Revenue</p>
-    <h2 id="totalRevenue">$0</h2>
-    <span>Revenue from sales.json</span>
-  </div>
-</section>
+      <div class="card">
+        <p class="card-label">Total Revenue</p>
+        <h2 id="totalRevenue">$0</h2>
+        <span>Revenue from sales.json</span>
+      </div>
+    </section>
 
-<section class="grid-two">
-  <div class="panel">
-    <div class="panel-header">
-      <h2>Closed Inquiries by Month</h2>
-      <p>Shows how many inquiries were closed each month.</p>
-    </div>
-    <div id="closedByMonthChart" class="bar-chart"></div>
-  </div>
+    <section class="grid-two">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Closed Inquiries by Month</h2>
+          <p>Shows how many inquiries were closed each month.</p>
+        </div>
+        <div id="closedByMonthChart" class="bar-chart"></div>
+      </div>
 
-  <div class="panel">
-    <div class="panel-header">
-      <h2>Revenue by Region</h2>
-      <p>Sales revenue grouped by region from sales.json.</p>
-    </div>
-    <div id="revenueByRegionChart" class="bar-chart"></div>
-  </div>
-</section>
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Revenue by Region</h2>
+          <p>Sales revenue grouped by region from sales.json.</p>
+        </div>
+        <div id="revenueByRegionChart" class="bar-chart"></div>
+      </div>
+    </section>
 
-<section class="grid-two">
-  <div class="panel">
-    <div class="panel-header">
-      <h2>Total Inquiries by Region</h2>
-      <p>Shows where inbound demand is coming from.</p>
-    </div>
-    <div id="inquiriesByRegionChart" class="pie-chart"></div>
-  </div>
+    <section class="grid-two">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Total Inquiries by Region</h2>
+          <p>Shows where inbound demand is coming from.</p>
+        </div>
+        <div id="inquiriesByRegionChart" class="pie-chart"></div>
+      </div>
 
-  <div class="panel">
-    <div class="panel-header">
-      <h2>Closed Inquiries by Region</h2>
-      <p>Shows which regions are converting into closed opportunities.</p>
-    </div>
-    <div id="closedByRegionChart" class="pie-chart"></div>
-  </div>
-</section>
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Closed Inquiries by Region</h2>
+          <p>Shows which regions are converting into closed opportunities.</p>
+        </div>
+        <div id="closedByRegionChart" class="pie-chart"></div>
+      </div>
+    </section>
 
-<section class="grid-two">
-  <div class="panel">
-    <div class="panel-header">
-      <h2>Sales by Region</h2>
-      <p>Number of sales grouped by region.</p>
-    </div>
-    <div id="salesByRegionChart" class="bar-chart"></div>
-  </div>
+    <section class="grid-two">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Sales by Region</h2>
+          <p>Number of sales grouped by region.</p>
+        </div>
+        <div id="salesByRegionChart" class="bar-chart"></div>
+      </div>
 
-  <div class="panel">
-    <div class="panel-header">
-      <h2>Revenue Mix by Region</h2>
-      <p>Share of revenue contribution by region.</p>
-    </div>
-    <div id="revenueMixByRegionChart" class="pie-chart"></div>
-  </div>
-</section>
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Revenue Mix by Region</h2>
+          <p>Share of revenue contribution by region.</p>
+        </div>
+        <div id="revenueMixByRegionChart" class="pie-chart"></div>
+      </div>
+    </section>
 
-  <section class="panel triage-panel">
-  <div class="panel-header">
-    <h2>Inquiry Triage Workflow</h2>
-    <p>
-  Review active inquiries by priority and status. Items marked as contacted are ready for follow-up.
-</p>
-  </div>
+    <section class="panel triage-panel">
+      <div class="panel-header triage-header">
+        <div>
+          <h2>Inquiry Triage Workflow</h2>
+          <p>
+            Review active inquiries by priority and status. Items marked as contacted are ready for follow-up.
+          </p>
+        </div>
+      </div>
 
-  <div class="triage-summary">
-    <div>
-      <span class="summary-label">Hot</span>
-      <strong id="hotCount">0</strong>
-    </div>
+      <div class="triage-summary">
+        <div class="triage-stat hot-stat">
+          <span>Hot</span>
+          <strong id="hotCount">0</strong>
+        </div>
 
-    <div>
-      <span class="summary-label">Warm</span>
-      <strong id="warmCount">0</strong>
-    </div>
+        <div class="triage-stat warm-stat">
+          <span>Warm</span>
+          <strong id="warmCount">0</strong>
+        </div>
 
-    <div>
-      <span class="summary-label">Cold</span>
-      <strong id="coldCount">0</strong>
-    </div>
+        <div class="triage-stat cold-stat">
+          <span>Cold</span>
+          <strong id="coldCount">0</strong>
+        </div>
 
-    <div>
-      <span class="summary-label">Contacted</span>
-      <strong id="contactedCount">0</strong>
-    </div>
-  </div>
+        <div class="triage-stat contacted-stat">
+          <span>Contacted</span>
+          <strong id="contactedCount">0</strong>
+        </div>
+      </div>
 
-  <div class="triage-toolbar highlighted-toolbar">
-  <div class="toolbar-intro">
-    <p class="filter-eyebrow">Triage Filters</p>
-    <h3>Refine inquiry list</h3>
-    <p>Search, priority, and status filters update the list below.</p>
-  </div>
+      <div class="triage-toolbar highlighted-toolbar">
+        <div class="toolbar-intro">
+          <p class="filter-eyebrow">Triage Filters</p>
+          <h3>Refine inquiry list</h3>
+          <p>Search, priority, and status filters update the list below.</p>
+        </div>
 
-  <div class="filter-group search-group">
-    <label for="triageSearch">Search</label>
-    <input
-      id="triageSearch"
-      type="text"
-      placeholder="Search by cafe, contact, or email"
-    />
-  </div>
+        <div class="filter-group search-group">
+          <label for="triageSearch">Search</label>
+          <input
+            id="triageSearch"
+            type="text"
+            placeholder="Search by cafe, contact, or email"
+          />
+        </div>
 
-  <div class="filter-group">
-    <label for="triageFilter">Priority</label>
-    <select id="triageFilter">
-      <option value="all">All priorities</option>
-      <option value="hot">Hot</option>
-      <option value="warm">Warm</option>
-      <option value="cold">Cold</option>
-    </select>
-  </div>
+        <div class="filter-group">
+          <label for="triageFilter">Priority</label>
+          <select id="triageFilter">
+            <option value="all">All priorities</option>
+            <option value="hot">Hot</option>
+            <option value="warm">Warm</option>
+            <option value="cold">Cold</option>
+          </select>
+        </div>
 
-  <div class="filter-group">
-    <label for="triageStatusFilter">Status</label>
-    <select id="triageStatusFilter">
-      <option value="all">All active statuses</option>
-    </select>
-  </div>
+        <div class="filter-group">
+          <label for="triageStatusFilter">Status</label>
+          <select id="triageStatusFilter">
+            <option value="all">All active statuses</option>
+          </select>
+        </div>
 
-  <div class="active-filter-pill">
-    <span>Current Triage View</span>
-    <strong id="currentTriageFilterLabel">All active inquiries</strong>
-  </div>
-</div>
+        <div class="active-filter-pill">
+          <span>Current Triage View</span>
+          <strong id="currentTriageFilterLabel">All active inquiries</strong>
+        </div>
+      </div>
+
+      <div id="triageList" class="triage-list"></div>
+    </section>
+  </main>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
