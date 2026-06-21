@@ -7,7 +7,7 @@ A small static web app for reviewing wholesale coffee roaster inquiries, sales p
 Access the project through GitHub Pages:
 
 ```text
-https://wessleysrodrigues.github.io/os-challenge-wessley/dashboard.html
+https://weslleysrodrigues.github.io/os-challenge-weslley/dashboard.html
 ```
 
 ## Pages
