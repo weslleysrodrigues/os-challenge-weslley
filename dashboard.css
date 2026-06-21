@@ -968,3 +968,54 @@ h1 {
     flex-direction: column;
   }
 }
+.compact-triage-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.modal-contact-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding: 16px;
+  border: 2px solid #c7a17a;
+  border-radius: 16px;
+  background: #fff7ed;
+}
+
+.modal-contact-card div {
+  display: grid;
+  gap: 6px;
+}
+
+.modal-contact-card span {
+  color: #8b5e34;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.modal-contact-card strong,
+.modal-contact-card a {
+  color: #2f1b0c;
+  font-size: 18px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.modal-contact-card a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 1100px) {
+  .compact-triage-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .compact-triage-grid,
+  .modal-contact-card {
+    grid-template-columns: 1fr;
+  }
+}
