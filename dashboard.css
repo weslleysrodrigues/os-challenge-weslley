@@ -1120,3 +1120,87 @@ h1 {
     grid-template-columns: 1fr;
   }
 }
+.clean-contact-header {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 16px;
+  border: 1px solid #e7ded3;
+  border-left: 5px solid #8b5e34;
+  border-radius: 16px;
+  background: #fffaf3;
+}
+
+.triage-company-block,
+.triage-contact-block {
+  display: grid;
+  gap: 6px;
+}
+
+.triage-company-block span,
+.triage-contact-block span {
+  color: #8b5e34;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.triage-company-block strong {
+  color: #2f1b0c;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.triage-contact-block {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding-top: 10px;
+  border-top: 1px solid #ead8c4;
+}
+
+.triage-contact-block strong {
+  color: #2f1b0c;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.email-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d6c7b7;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #6f4728;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.email-pill:hover {
+  background: #f2d6b3;
+  text-decoration: none;
+}
+
+@media (max-width: 700px) {
+  .triage-contact-block {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .email-pill {
+    width: 100%;
+    justify-content: flex-start;
+    white-space: normal;
+    word-break: break-word;
+  }
+}
