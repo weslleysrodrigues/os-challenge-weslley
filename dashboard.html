@@ -1,226 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coffee Roaster Command Center</title>
-  <link rel="stylesheet" href="dashboard.css" />
-</head>
+.top-products-table {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
 
-<body>
-  <main class="page">
-    <section class="hero">
-      <div class="hero-icon">☕</div>
+.top-products-row {
+  display: grid;
+  grid-template-columns: 70px 1.8fr 120px 140px 150px 120px;
+  gap: 14px;
+  align-items: center;
+  min-width: 880px;
+  padding: 14px 0;
+  border-bottom: 1px solid #e7ded3;
+}
 
-      <div class="hero-content">
-        <p class="eyebrow">Internal Command Center</p>
-        <h1>Coffee Roaster Dashboard</h1>
-        <p class="subtitle">
-          Track inquiry performance, conversion, regional demand, sales, and follow-up priorities.
-        </p>
-      </div>
+.top-products-row:last-child {
+  border-bottom: none;
+}
 
-      <a class="hero-button" href="triage.html">
-        Open Triage Workflow
-      </a>
-    </section>
+.top-products-row.header-row {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
 
-    <section class="filter-panel">
-      <div>
-        <p class="filter-eyebrow">Dashboard Filters</p>
-        <h2>Focus the view</h2>
-        <p>
-          Use the month filter to review a specific inquiry period. The current selection is shown on the right.
-        </p>
-      </div>
+.product-rank {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #fff7ed;
+  color: #8b5e34;
+  font-weight: 800;
+}
 
-      <div class="filter-panel-controls">
-        <div class="filter-group">
-          <label for="monthFilter">Inquiry Month</label>
-          <select id="monthFilter">
-            <option value="all">All months</option>
-          </select>
-        </div>
+.product-name {
+  color: #2f1b0c;
+  font-weight: 800;
+}
 
-        <div class="active-filter-pill">
-          <span>Current View</span>
-          <strong id="currentMonthLabel">All months</strong>
-        </div>
-      </div>
-    </section>
+.product-metric {
+  color: #374151;
+  font-weight: 700;
+  white-space: nowrap;
+}
 
-    <section class="kpi-grid dashboard-kpis">
-      <div class="card needs-action-card">
-        <p class="card-label">Needs Action</p>
-        <h2 id="needsAction">0</h2>
-        <span>Open inquiries that have not been contacted yet.</span>
-      </div>
-
-      <div class="card">
-        <p class="card-label">Total Inquiries</p>
-        <h2 id="totalInquiries">0</h2>
-        <span>All inquiries received in the selected month.</span>
-      </div>
-
-      <div class="card">
-        <p class="card-label">Closed Inquiries</p>
-        <h2 id="closedInquiries">0</h2>
-        <span>Inquiries already marked as closed.</span>
-      </div>
-
-      <div class="card">
-        <p class="card-label">Conversion Rate</p>
-        <h2 id="conversionRate">0%</h2>
-        <span>Closed inquiries divided by total inquiries.</span>
-      </div>
-
-      <div class="card">
-        <p class="card-label">Total Revenue</p>
-        <h2 id="totalRevenue">$0</h2>
-        <span>Total sales revenue for the selected view.</span>
-      </div>
-    </section>
-
-    <section class="grid-two">
-      <div class="panel">
-        <div class="panel-header">
-          <h2>Closed Inquiries by Month</h2>
-          <p>Shows how many inquiries were closed each month. Use this to spot closing trends.</p>
-        </div>
-        <div id="closedByMonthChart" class="chart-container"></div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-header">
-          <h2>Revenue by Region</h2>
-          <p>Shows which regions are generating the most sales revenue.</p>
-        </div>
-        <div id="revenueByRegionChart" class="chart-container"></div>
-      </div>
-    </section>
-
-    <section class="grid-two">
-      <div class="panel">
-        <div class="panel-header">
-          <h2>Total Inquiries by Region</h2>
-          <p>Shows where demand is coming from. Larger slices mean more inbound interest.</p>
-        </div>
-        <div id="inquiriesByRegionChart" class="chart-container"></div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-header">
-          <h2>Closed Inquiries by Region</h2>
-          <p>Shows which regions are turning inquiries into closed opportunities.</p>
-        </div>
-        <div id="closedByRegionChart" class="chart-container"></div>
-      </div>
-    </section>
-
-    <section class="grid-two">
-      <div class="panel">
-        <div class="panel-header">
-          <h2>Sales by Region</h2>
-          <p>Shows how many sales were recorded in each region.</p>
-        </div>
-        <div id="salesByRegionChart" class="chart-container"></div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-header">
-          <h2>Revenue Mix by Region</h2>
-          <p>Shows each region’s share of total revenue.</p>
-        </div>
-        <div id="revenueMixByRegionChart" class="chart-container"></div>
-      </div>
-    </section>
-<section class="panel">
-  <div class="panel-header">
-    <h2>Top 5 Best-Selling Products</h2>
-    <p>
-      Shows the products with the highest number of sales.
-    </p>
-  </div>
-
-  <div id="topProductsTable" class="top-products-table"></div>
-</section>
-    
-
-    <section class="panel triage-panel">
-      <div class="panel-header triage-header">
-        <div>
-          <h2>Inquiry Triage Workflow</h2>
-          <p>
-            Review active inquiries by priority and status. Items marked as contacted are ready for follow-up.
-          </p>
-        </div>
-      </div>
-
-      <div class="triage-summary">
-        <div class="triage-stat hot-stat">
-          <span>Hot</span>
-          <strong id="hotCount">0</strong>
-        </div>
-
-        <div class="triage-stat warm-stat">
-          <span>Warm</span>
-          <strong id="warmCount">0</strong>
-        </div>
-
-        <div class="triage-stat cold-stat">
-          <span>Cold</span>
-          <strong id="coldCount">0</strong>
-        </div>
-
-        <div class="triage-stat contacted-stat">
-          <span>Contacted</span>
-          <strong id="contactedCount">0</strong>
-        </div>
-      </div>
-
-      <div class="triage-toolbar highlighted-toolbar">
-        <div class="toolbar-intro">
-          <p class="filter-eyebrow">Triage Filters</p>
-          <h3>Refine inquiry list</h3>
-          <p>Search, priority, and status filters update the list below.</p>
-        </div>
-
-        <div class="filter-group search-group">
-          <label for="triageSearch">Search</label>
-          <input
-            id="triageSearch"
-            type="text"
-            placeholder="Search by cafe, contact, or email"
-          />
-        </div>
-
-        <div class="filter-group">
-          <label for="triageFilter">Priority</label>
-          <select id="triageFilter">
-            <option value="all">All priorities</option>
-            <option value="hot">Hot</option>
-            <option value="warm">Warm</option>
-            <option value="cold">Cold</option>
-          </select>
-        </div>
-
-        <div class="filter-group">
-          <label for="triageStatusFilter">Status</label>
-          <select id="triageStatusFilter">
-            <option value="all">All active statuses</option>
-          </select>
-        </div>
-
-        <div class="active-filter-pill">
-          <span>Current Triage View</span>
-          <strong id="currentTriageFilterLabel">All active inquiries</strong>
-        </div>
-      </div>
-
-      <div id="triageList" class="triage-list"></div>
-    </section>
-  </main>
-
-  <script src="dashboard.js"></script>
-</body>
-</html>
+@media (max-width: 900px) {
+  .top-products-row {
+    min-width: 880px;
+  }
+}
