@@ -608,3 +608,23 @@ h1 {
     grid-template-columns: 1fr;
   }
 }
+.dashboard-kpis .card {
+  text-align: center;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  min-height: 150px;
+}
+
+.dashboard-kpis .card-label {
+  font-weight: 700;
+}
+
+.dashboard-kpis .card h2 {
+  font-size: 34px;
+}
+
+.dashboard-kpis .card span {
+  max-width: 190px;
+  line-height: 1.4;
+}
