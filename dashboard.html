@@ -46,50 +46,40 @@
     </section>
 
     <section class="kpi-grid dashboard-kpis">
-      <div class="card">
-        <p class="card-label">Total Inquiries</p>
-        <h2 id="totalInquiries">0</h2>
-        <span>Inbound wholesale inquiries</span>
-      </div>
+  <div class="card needs-action-card">
+    <p class="card-label">Needs Action</p>
+    <h2 id="needsAction">0</h2>
+    <span>Open inquiries that have not been contacted yet.</span>
+  </div>
 
-      <div class="card">
-        <p class="card-label">Closed Inquiries</p>
-        <h2 id="closedInquiries">0</h2>
-        <span>Inquiries marked as closed</span>
-      </div>
+  <div class="card">
+    <p class="card-label">Total Inquiries</p>
+    <h2 id="totalInquiries">0</h2>
+    <span>All inquiries received in the selected month.</span>
+  </div>
 
-      <div class="card">
-        <p class="card-label">Conversion Rate</p>
-        <h2 id="conversionRate">0%</h2>
-        <span>Closed inquiries divided by total inquiries</span>
-      </div>
+  <div class="card">
+    <p class="card-label">Closed Inquiries</p>
+    <h2 id="closedInquiries">0</h2>
+    <span>Inquiries already marked as closed.</span>
+  </div>
 
-      <div class="card needs-action-card">
-        <p class="card-label">Needs Action</p>
-        <h2 id="needsAction">0</h2>
-        <span>Not closed and not contacted yet</span>
-      </div>
+  <div class="card">
+    <p class="card-label">Conversion Rate</p>
+    <h2 id="conversionRate">0%</h2>
+    <span>Closed inquiries divided by total inquiries.</span>
+  </div>
 
-      <div class="card">
-        <p class="card-label">Total Revenue</p>
-        <h2 id="totalRevenue">$0</h2>
-        <span>Revenue from sales.json</span>
-      </div>
-    </section>
-
-    <section class="grid-two">
-      <div class="panel">
-        <div class="panel-header">
-          <h2>Closed Inquiries by Month</h2>
-          <p>Shows how many inquiries were closed each month.</p>
-        </div>
-        <div id="closedByMonthChart" class="bar-chart"></div>
-      </div>
-
+  <div class="card">
+    <p class="card-label">Total Revenue</p>
+    <h2 id="totalRevenue">$0</h2>
+    <span>Total sales revenue for the selected view.</span>
+  </div>
+</section>
       <div class="panel">
         <div class="panel-header">
           <h2>Revenue by Region</h2>
-          <p>Sales revenue grouped by region from sales.json.</p>
+          <p>Sales revenue grouped by region.</p>
         </div>
         <div id="revenueByRegionChart" class="bar-chart"></div>
       </div>
