@@ -543,18 +543,23 @@ function renderTriageWorkflow(inquiries, accounts = []) {
 
     card.innerHTML = `
       <div class="triage-main">
-        <div class="triage-card-header">
-          <div class="triage-company-card">
-            <span>Company</span>
-            <strong>${getCompany(inquiry)}</strong>
-          </div>
+        <div class="triage-card-header clean-contact-header">
+  <div class="triage-company-block">
+    <span>Company</span>
+    <strong>${getCompany(inquiry)}</strong>
+  </div>
 
-          <div class="triage-contact-card">
-            <span>Contact</span>
-            <strong>${getContactName(inquiry)}</strong>
-            <a href="mailto:${getEmail(inquiry)}">${getEmail(inquiry)}</a>
-          </div>
-        </div>
+  <div class="triage-contact-block">
+    <div>
+      <span>Contact</span>
+      <strong>${getContactName(inquiry)}</strong>
+    </div>
+
+    <a class="email-pill" href="mailto:${getEmail(inquiry)}">
+      ${getEmail(inquiry)}
+    </a>
+  </div>
+</div>
 
         <div class="triage-details-grid compact-triage-grid">
           <div class="detail-item">
