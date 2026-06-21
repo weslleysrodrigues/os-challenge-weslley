@@ -25,6 +25,10 @@ async function loadDashboardData() {
     const inquiries = normalizeData(inquiriesRaw);
     const accounts = normalizeData(accountsRaw);
 
+    console.log("Loaded sales:", sales);
+    console.log("Loaded inquiries:", inquiries);
+    console.log("Loaded accounts:", accounts);
+
     renderDashboard(sales, inquiries, accounts);
   } catch (error) {
     console.error("Error loading dashboard data:", error);
@@ -169,6 +173,24 @@ function getSaleDate(sale) {
   );
 }
 
+function getProductName(sale) {
+  return (
+    sale.product ||
+    sale.product_name ||
+    sale.productName ||
+    sale.sku ||
+    sale.item ||
+    sale.item_name ||
+    sale.itemName ||
+    sale.category ||
+    "Unknown Product"
+  );
+}
+
+function getUnitsLbs(sale) {
+  return Number(sale.units_lbs || sale.unitsLbs || sale.units || sale.lbs || 0) || 0;
+}
+
 function getInquiryMessage(inquiry) {
   return inquiry.message || inquiry.notes || inquiry.description || "No message provided.";
 }
@@ -302,6 +324,7 @@ function renderDashboard(sales, inquiries, accounts) {
 
   renderInquiryMetrics(filteredInquiries, filteredSales);
   renderInquiryCharts(inquiries, filteredInquiries, filteredSales);
+  renderTopProducts(filteredSales);
   renderTriageWorkflow(filteredInquiries, accounts);
   updateDashboardFilterLabel();
 
@@ -309,7 +332,11 @@ function renderDashboard(sales, inquiries, accounts) {
 
   if (monthFilter) {
     monthFilter.onchange = function () {
-      renderDashboard(window.allSales || [], window.allInquiries || [], window.currentAccounts || []);
+      renderDashboard(
+        window.allSales || [],
+        window.allInquiries || [],
+        window.currentAccounts || []
+      );
     };
   }
 }
@@ -355,6 +382,120 @@ function renderInquiryCharts(allInquiries, filteredInquiries, filteredSales) {
   renderPieChart("closedByRegionChart", closedByRegion);
   renderBarChart("salesByRegionChart", salesByRegion, "", false);
   renderPieChart("revenueMixByRegionChart", revenueByRegion, "$");
+}
+
+function renderTopProducts(sales) {
+  const container = document.getElementById("topProductsTable");
+
+  if (!container) {
+    console.warn("topProductsTable element was not found in dashboard.html");
+    return;
+  }
+
+  container.innerHTML = "";
+
+  if (!sales || !sales.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        No sales data available for the selected view.
+      </div>
+    `;
+    return;
+  }
+
+  const topProducts = groupSalesByProduct(sales);
+
+  if (!topProducts.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        No product sales data available.
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="top-products-row header-row">
+      <div>Rank</div>
+      <div>Product</div>
+      <div>Total Sales</div>
+      <div>Units LBS</div>
+      <div>AOV</div>
+    </div>
+  `;
+
+  topProducts.forEach((product, index) => {
+    const row = document.createElement("div");
+    row.className = "top-products-row";
+
+    row.innerHTML = `
+      <div>
+        <span class="product-rank">${index + 1}</span>
+      </div>
+
+      <div class="product-name">
+        ${product.product}
+      </div>
+
+      <div class="product-metric">
+        ${product.salesCount.toLocaleString()}
+      </div>
+
+      <div class="product-metric">
+        ${Math.round(product.totalUnits).toLocaleString()} lbs
+      </div>
+
+      <div class="product-metric">
+        $${product.aov.toFixed(2)}
+      </div>
+    `;
+
+    container.appendChild(row);
+  });
+}
+
+function groupSalesByProduct(sales) {
+  const productMap = {};
+
+  sales.forEach((sale) => {
+    const productName = getProductName(sale);
+    const revenue = getRevenue(sale);
+    const units = getUnitsLbs(sale);
+
+    if (!productMap[productName]) {
+      productMap[productName] = {
+        product: productName,
+        salesCount: 0,
+        totalUnits: 0,
+        revenue: 0
+      };
+    }
+
+    productMap[productName].salesCount += 1;
+    productMap[productName].totalUnits += units;
+    productMap[productName].revenue += revenue;
+  });
+
+  return Object.values(productMap)
+    .map((item) => {
+      const aov = item.salesCount > 0 ? item.revenue / item.salesCount : 0;
+
+      return {
+        product: item.product,
+        salesCount: item.salesCount,
+        totalUnits: item.totalUnits,
+        revenue: item.revenue,
+        aov: aov
+      };
+    })
+    .sort((a, b) => {
+      if (b.salesCount !== a.salesCount) {
+        return b.salesCount - a.salesCount;
+      }
+
+      return b.revenue - a.revenue;
+    })
+    .slice(0, 5);
 }
 
 function updateDashboardFilterLabel() {
@@ -1015,103 +1156,5 @@ function formatDate(dateValue) {
 
   return date.toLocaleDateString();
 }
-function getProductName(sale) {
-  return (
-    sale.product ||
-    sale.product_name ||
-    sale.productName ||
-    sale.item ||
-    sale.item_name ||
-    sale.itemName ||
-    sale.sku ||
-    sale.category ||
-    "Unknown Product"
-  );
-}
 
-function groupSalesByProduct(sales) {
-  const productMap = {};
-
-  sales.forEach((sale) => {
-    const productName = getProductName(sale);
-    const revenue = getRevenue(sale);
-
-    if (!productMap[productName]) {
-      productMap[productName] = {
-        product: productName,
-        salesCount: 0,
-        revenue: 0
-      };
-    }
-
-    productMap[productName].salesCount += 1;
-    productMap[productName].revenue += revenue;
-  });
-
-  return Object.values(productMap)
-    .map((item) => {
-      const aov = item.salesCount > 0 ? item.revenue / item.salesCount : 0;
-
-      return {
-        ...item,
-        aov
-      };
-    })
-    .sort((a, b) => b.salesCount - a.salesCount)
-    .slice(0, 5);
-}
-
-function renderTopProducts(sales) {
-  const container = document.getElementById("topProductsTable");
-
-  if (!container) {
-    return;
-  }
-
-  const topProducts = groupSalesByProduct(sales);
-
-  if (!topProducts.length) {
-    container.innerHTML = `<p class="empty-state">No product sales data available.</p>`;
-    return;
-  }
-
-  container.innerHTML = `
-    <div class="top-products-row header-row">
-      <div>Rank</div>
-      <div>Product</div>
-      <div>Total Sales</div>
-      <div>Total Revenue</div>
-      <div>AOV</div>
-    </div>
-  `;
-
-  topProducts.forEach((product, index) => {
-    const row = document.createElement("div");
-    row.className = "top-products-row";
-
-    row.innerHTML = `
-      <div>
-        <span class="product-rank">${index + 1}</span>
-      </div>
-
-      <div class="product-name">
-        ${product.product}
-      </div>
-
-      <div class="product-metric">
-        ${product.salesCount.toLocaleString()}
-      </div>
-
-      <div class="product-metric">
-        $${Math.round(product.revenue).toLocaleString()}
-      </div>
-
-      <div class="product-metric">
-        $${Math.round(product.aov).toLocaleString()}
-      </div>
-    `;
-
-    container.appendChild(row);
-  });
-}
 loadDashboardData();
