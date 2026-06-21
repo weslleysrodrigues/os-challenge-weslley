@@ -42,9 +42,13 @@ async function loadDashboardData() {
 }
 
 function normalizeData(data) {
-  if (Array.isArray(data)) return data;
+  if (Array.isArray(data)) {
+    return data;
+  }
 
-  if (!data || typeof data !== "object") return [];
+  if (!data || typeof data !== "object") {
+    return [];
+  }
 
   const possibleKeys = [
     "data",
@@ -57,7 +61,9 @@ function normalizeData(data) {
   ];
 
   for (const key of possibleKeys) {
-    if (Array.isArray(data[key])) return data[key];
+    if (Array.isArray(data[key])) {
+      return data[key];
+    }
   }
 
   const firstArray = Object.values(data).find((value) => Array.isArray(value));
@@ -188,7 +194,9 @@ function getActiveInquiries(inquiries) {
 function getMonthKeyFromDate(dateValue) {
   const date = new Date(dateValue);
 
-  if (Number.isNaN(date.getTime())) return "Unknown";
+  if (Number.isNaN(date.getTime())) {
+    return "Unknown";
+  }
 
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 }
@@ -202,10 +210,14 @@ function getSaleMonthKey(sale) {
 }
 
 function formatMonthLabel(monthKey) {
-  if (monthKey === "Unknown") return "Unknown";
+  if (monthKey === "Unknown") {
+    return "Unknown";
+  }
 
-  const [year, month] = monthKey.split("-");
-  const date = new Date(Number(year), Number(month) - 1, 1);
+  const parts = monthKey.split("-");
+  const year = Number(parts[0]);
+  const month = Number(parts[1]);
+  const date = new Date(year, month - 1, 1);
 
   return date.toLocaleDateString("en-US", {
     month: "short",
@@ -216,7 +228,9 @@ function formatMonthLabel(monthKey) {
 function populateMonthFilter(inquiries) {
   const monthFilter = document.getElementById("monthFilter");
 
-  if (!monthFilter) return;
+  if (!monthFilter) {
+    return;
+  }
 
   const currentValue = monthFilter.value || "all";
 
@@ -243,7 +257,9 @@ function populateMonthFilter(inquiries) {
 function getSelectedMonth() {
   const monthFilter = document.getElementById("monthFilter");
 
-  if (!monthFilter) return "all";
+  if (!monthFilter) {
+    return "all";
+  }
 
   return monthFilter.value || "all";
 }
@@ -251,7 +267,9 @@ function getSelectedMonth() {
 function filterInquiriesByMonth(inquiries) {
   const selectedMonth = getSelectedMonth();
 
-  if (selectedMonth === "all") return inquiries;
+  if (selectedMonth === "all") {
+    return inquiries;
+  }
 
   return inquiries.filter((inquiry) => getMonthKey(inquiry) === selectedMonth);
 }
@@ -259,11 +277,15 @@ function filterInquiriesByMonth(inquiries) {
 function filterSalesByMonth(sales) {
   const selectedMonth = getSelectedMonth();
 
-  if (selectedMonth === "all") return sales;
+  if (selectedMonth === "all") {
+    return sales;
+  }
 
   const salesWithValidDate = sales.filter((sale) => getSaleMonthKey(sale) !== "Unknown");
 
-  if (!salesWithValidDate.length) return sales;
+  if (!salesWithValidDate.length) {
+    return sales;
+  }
 
   return sales.filter((sale) => getSaleMonthKey(sale) === selectedMonth);
 }
@@ -390,7 +412,9 @@ function groupClosedByMonth(inquiries) {
   const monthMap = {};
 
   inquiries.forEach((inquiry) => {
-    if (!isClosedInquiry(inquiry)) return;
+    if (!isClosedInquiry(inquiry)) {
+      return;
+    }
 
     const monthKey = getMonthKey(inquiry);
     const label = formatMonthLabel(monthKey);
@@ -404,7 +428,9 @@ function groupClosedByMonth(inquiries) {
 function renderBarChart(elementId, data, prefix, isColumnChart) {
   const container = document.getElementById(elementId);
 
-  if (!container) return;
+  if (!container) {
+    return;
+  }
 
   container.innerHTML = "";
 
@@ -467,7 +493,9 @@ function renderBarChart(elementId, data, prefix, isColumnChart) {
 function renderPieChart(elementId, data, prefix = "") {
   const container = document.getElementById(elementId);
 
-  if (!container) return;
+  if (!container) {
+    return;
+  }
 
   container.innerHTML = "";
 
@@ -595,7 +623,9 @@ function classifyInquiry(inquiry) {
 function getContactedState() {
   const saved = localStorage.getItem("contactedInquiries");
 
-  if (!saved) return {};
+  if (!saved) {
+    return {};
+  }
 
   try {
     return JSON.parse(saved);
@@ -634,8 +664,14 @@ function buildTriageItems(inquiries) {
 }
 
 function getPriorityRank(level) {
-  if (level === "hot") return 1;
-  if (level === "warm") return 2;
+  if (level === "hot") {
+    return 1;
+  }
+
+  if (level === "warm") {
+    return 2;
+  }
+
   return 3;
 }
 
@@ -672,7 +708,9 @@ function getInquiryCountForCustomer(inquiry, inquiries) {
 
   const inquiryName = normalizeName(getCompany(inquiry));
 
-  if (!inquiryName) return 1;
+  if (!inquiryName) {
+    return 1;
+  }
 
   const countByName = inquiries.filter((item) => {
     return normalizeName(getCompany(item)) === inquiryName;
@@ -684,7 +722,9 @@ function getInquiryCountForCustomer(inquiry, inquiries) {
 function getInquiryCountLabel(inquiry, inquiries) {
   const count = getInquiryCountForCustomer(inquiry, inquiries);
 
-  if (count === 1) return "1 - New";
+  if (count === 1) {
+    return "1 - New";
+  }
 
   return `${count} - Returning`;
 }
@@ -692,7 +732,9 @@ function getInquiryCountLabel(inquiry, inquiries) {
 function populateStatusFilter(activeInquiries) {
   const statusFilter = document.getElementById("triageStatusFilter");
 
-  if (!statusFilter) return;
+  if (!statusFilter) {
+    return;
+  }
 
   const currentValue = statusFilter.value || "all";
 
@@ -719,13 +761,17 @@ function populateStatusFilter(activeInquiries) {
 function getSearchValue() {
   const searchInput = document.getElementById("triageSearch");
 
-  if (!searchInput) return "";
+  if (!searchInput) {
+    return "";
+  }
 
   return searchInput.value.trim().toLowerCase();
 }
 
 function matchesSearch(inquiry, searchValue) {
-  if (!searchValue) return true;
+  if (!searchValue) {
+    return true;
+  }
 
   const searchableText = [
     getCompany(inquiry),
@@ -749,9 +795,17 @@ function updateTriageFilterLabel() {
 
   const parts = [];
 
-  if (search) parts.push(`Search: ${search}`);
-  if (priority !== "all") parts.push(`Priority: ${priority}`);
-  if (status !== "all") parts.push(`Status: ${status}`);
+  if (search) {
+    parts.push(`Search: ${search}`);
+  }
+
+  if (priority !== "all") {
+    parts.push(`Priority: ${priority}`);
+  }
+
+  if (status !== "all") {
+    parts.push(`Status: ${status}`);
+  }
 
   setText("currentTriageFilterLabel", parts.length ? parts.join(" | ") : "All active inquiries");
 }
@@ -767,7 +821,9 @@ function renderTriageWorkflow(inquiries, accounts = []) {
   const statusFilter = document.getElementById("triageStatusFilter");
   const searchInput = document.getElementById("triageSearch");
 
-  if (!list || !priorityFilter) return;
+  if (!list || !priorityFilter) {
+    return;
+  }
 
   populateStatusFilter(activeInquiries);
 
@@ -779,7 +835,9 @@ function renderTriageWorkflow(inquiries, accounts = []) {
     const contactedA = contactedState[a.id]?.contacted ? 1 : 0;
     const contactedB = contactedState[b.id]?.contacted ? 1 : 0;
 
-    if (contactedA !== contactedB) return contactedA - contactedB;
+    if (contactedA !== contactedB) {
+      return contactedA - contactedB;
+    }
 
     return (
       getPriorityRank(a.classification.level) -
@@ -945,11 +1003,15 @@ function updateTriageCounts(triageItems, contactedState) {
 }
 
 function formatDate(dateValue) {
-  if (!dateValue) return "unknown date";
+  if (!dateValue) {
+    return "unknown date";
+  }
 
   const date = new Date(dateValue);
 
-  if (Number.isNaN(date.getTime())) return "unknown date";
+  if (Number.isNaN(date.getTime())) {
+    return "unknown date";
+  }
 
   return date.toLocaleDateString();
 }
