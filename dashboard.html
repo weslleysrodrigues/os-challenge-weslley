@@ -9,17 +9,21 @@
 
 <body>
   <main class="page">
-    <section class="hero">
-      <div class="hero-icon">☕</div>
+   <section class="hero">
+  <div class="hero-icon">☕</div>
 
-      <div>
-        <p class="eyebrow">Internal Command Center</p>
-        <h1>Coffee Roaster Dashboard</h1>
-        <p class="subtitle">
-          Track wholesale inquiry performance, conversion, regional demand, sales, and follow-up priorities.
-        </p>
-      </div>
-    </section>
+  <div class="hero-content">
+    <p class="eyebrow">Internal Command Center</p>
+    <h1>Coffee Roaster Dashboard</h1>
+    <p class="subtitle">
+      Track wholesale inquiry performance, conversion, regional demand, sales, and follow-up priorities.
+    </p>
+  </div>
+
+  <a class="hero-button" href="triage.html">
+    Open Triage Workflow
+  </a>
+</section>
 
     <section class="filter-panel">
       <div>
@@ -78,8 +82,8 @@
 </section>
       <div class="panel">
         <div class="panel-header">
-          <h2>Revenue by Region</h2>
-          <p>Sales revenue grouped by region.</p>
+       <h2>Revenue by Region</h2>
+        <p>Shows which regions are generating the most sales revenue.</p>
         </div>
         <div id="revenueByRegionChart" class="bar-chart"></div>
       </div>
@@ -89,7 +93,7 @@
       <div class="panel">
         <div class="panel-header">
           <h2>Total Inquiries by Region</h2>
-          <p>Shows where inbound demand is coming from.</p>
+          <p>Shows where demand is coming from. Larger slices mean more inbound interest.</p>
         </div>
         <div id="inquiriesByRegionChart" class="pie-chart"></div>
       </div>
@@ -97,7 +101,7 @@
       <div class="panel">
         <div class="panel-header">
           <h2>Closed Inquiries by Region</h2>
-          <p>Shows which regions are converting into closed opportunities.</p>
+          <p>Shows which regions are turning inquiries into closed opportunities.</p>
         </div>
         <div id="closedByRegionChart" class="pie-chart"></div>
       </div>
@@ -107,7 +111,7 @@
       <div class="panel">
         <div class="panel-header">
           <h2>Sales by Region</h2>
-          <p>Number of sales grouped by region.</p>
+          <p>Shows how many sales were recorded in each region.</p>
         </div>
         <div id="salesByRegionChart" class="bar-chart"></div>
       </div>
@@ -115,7 +119,7 @@
       <div class="panel">
         <div class="panel-header">
           <h2>Revenue Mix by Region</h2>
-          <p>Share of revenue contribution by region.</p>
+          <p>Shows each region’s share of total revenue.</p>
         </div>
         <div id="revenueMixByRegionChart" class="pie-chart"></div>
       </div>
