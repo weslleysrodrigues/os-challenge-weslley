@@ -1,17 +1,13 @@
 # Coffee Roaster Command Center
 
-A small static web app for reviewing wholesale coffee roaster inquiries, sales performance, and operator triage workflow.
+A small static web app for reviewing wholesale coffee roaster inquiries, sales performance, and the operator triage workflow.
 
-## Run locally
+## Live Demo
 
-```bash
-python3 -m http.server 8000
-```
-
-Then open:
+Access the project through GitHub Pages:
 
 ```text
-http://localhost:8000/dashboard.html
+https://wessleysrodrigues.github.io/os-challenge-wessley/dashboard.html
 ```
 
 ## Pages
@@ -29,6 +25,20 @@ data/sales.json
 data/accounts.json
 ```
 
-## Notes
+## Run locally, optional
 
-This project is built with plain HTML, CSS, and JavaScript. No build step, framework, or package install is required.
+This project does not require a build step or package install. To run it locally, use:
+
+```bash
+python3 -m http.server 8000
+```
+
+Then open:
+
+```text
+http://localhost:8000/dashboard.html
+```
+
+## Tech
+
+Built with plain HTML, CSS, and JavaScript. No framework or build process is required.
