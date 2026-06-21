@@ -419,3 +419,97 @@ td {
   color: #2f1b0c;
   min-width: 240px;
 }
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 26px;
+  margin-bottom: 22px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #2f1b0c, #6f4728);
+  color: #fffaf3;
+  box-shadow: 0 12px 28px rgba(47, 27, 12, 0.16);
+}
+
+.hero-icon {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.14);
+  font-size: 36px;
+}
+
+.hero .eyebrow {
+  color: #f2d6b3;
+}
+
+.hero h1 {
+  color: #fffaf3;
+}
+
+.hero .subtitle {
+  color: #ead8c4;
+}
+
+.dashboard-controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+
+.dashboard-controls .filter-group {
+  min-width: 220px;
+}
+
+.insight-panel {
+  background: #fffaf3;
+}
+
+.snapshot-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.snapshot-grid div {
+  padding: 16px;
+  border: 1px solid #e7ded3;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.snapshot-grid span {
+  display: block;
+  margin-bottom: 6px;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.snapshot-grid strong {
+  color: #2f1b0c;
+  font-size: 22px;
+}
+
+@media (max-width: 900px) {
+  .hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dashboard-controls {
+    justify-content: stretch;
+  }
+
+  .dashboard-controls .filter-group {
+    width: 100%;
+  }
+
+  .snapshot-grid {
+    grid-template-columns: 1fr;
+  }
+}
