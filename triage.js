@@ -252,6 +252,16 @@ function getPriorityRank(level) {
   return 3;
 }
 
+function getDateSortValue(dateValue) {
+  const date = new Date(dateValue);
+
+  if (Number.isNaN(date.getTime())) {
+    return Number.MAX_SAFE_INTEGER;
+  }
+
+  return date.getTime();
+}
+
 function getContactedState() {
   const saved = localStorage.getItem("contactedInquiries");
 
@@ -476,11 +486,11 @@ function renderTriageWorkflow(inquiries, accounts = []) {
   let triageItems = buildTriageItems(activeInquiries);
 
   triageItems.sort((a, b) => {
-    const contactedA = contactedState[a.id]?.contacted ? 1 : 0;
-    const contactedB = contactedState[b.id]?.contacted ? 1 : 0;
+    const dateA = getDateSortValue(getReceivedDate(a.inquiry));
+    const dateB = getDateSortValue(getReceivedDate(b.inquiry));
 
-    if (contactedA !== contactedB) {
-      return contactedA - contactedB;
+    if (dateA !== dateB) {
+      return dateA - dateB;
     }
 
     return (
@@ -527,23 +537,13 @@ function renderTriageWorkflow(inquiries, accounts = []) {
     const inquiry = item.inquiry;
     const isContacted = contactedState[item.id]?.contacted;
     const contactedAt = contactedState[item.id]?.contactedAt;
-    const inquiryCountLabel = getInquiryCountLabel(inquiry, inquiries);
 
     const card = document.createElement("div");
     card.className = `triage-card ${isContacted ? "contacted" : ""}`;
 
     card.innerHTML = `
       <div class="triage-main">
-        <div class="triage-title-row">
-          <div>
-            <h3>${getCompany(inquiry)}</h3>
-            <p class="triage-contact">
-              ${getContactName(inquiry)} | ${getEmail(inquiry)}
-            </p>
-          </div>
-        </div>
-
-        <div class="triage-details-grid">
+        <div class="triage-details-grid compact-triage-grid">
           <div class="detail-item">
             <span>Priority</span>
             <strong class="priority-text ${item.classification.level}">
@@ -557,39 +557,20 @@ function renderTriageWorkflow(inquiries, accounts = []) {
           </div>
 
           <div class="detail-item">
-            <span>Region</span>
-            <strong>${getRegion(inquiry)}</strong>
-          </div>
-
-          <div class="detail-item">
-            <span>Channel</span>
-            <strong>${getChannel(inquiry)}</strong>
+            <span>Received Date</span>
+            <strong>${getReceivedDate(inquiry)}</strong>
           </div>
 
           <div class="detail-item">
             <span>Requested Volume</span>
             <strong>${getRequestedVolume(inquiry).toLocaleString()} lbs/month</strong>
           </div>
-
-          <div class="detail-item">
-            <span>Received Date</span>
-            <strong>${getReceivedDate(inquiry)}</strong>
-          </div>
-
-          <div class="detail-item">
-            <span>Number of Inquiries</span>
-            <strong>${inquiryCountLabel}</strong>
-          </div>
         </div>
 
         <div class="triage-summary-text">
-          <strong>Operator Summary:</strong>
+          <strong>Inquiry Notes:</strong>
           <p>${getInquirySummary(inquiry)}</p>
         </div>
-
-        <p class="triage-reason">
-          <strong>Why ${item.classification.label}:</strong> ${item.classification.reason}
-        </p>
 
         ${
           isContacted
@@ -667,7 +648,6 @@ function openInquiryModal(inquiryId) {
   const classification = classifyInquiry(inquiry);
   const contactedState = getContactedState();
   const isContacted = contactedState[inquiryId]?.contacted;
-  const contactedAt = contactedState[inquiryId]?.contactedAt;
   const inquiryCountLabel = getInquiryCountLabel(inquiry, window.currentInquiries || []);
 
   window.selectedInquiryId = inquiryId;
@@ -675,6 +655,18 @@ function openInquiryModal(inquiryId) {
   modalCompany.textContent = getCompany(inquiry);
 
   modalBody.innerHTML = `
+    <div class="modal-contact-card">
+      <div>
+        <span>Contact Name</span>
+        <strong>${getContactName(inquiry)}</strong>
+      </div>
+
+      <div>
+        <span>Email</span>
+        <a href="mailto:${getEmail(inquiry)}">${getEmail(inquiry)}</a>
+      </div>
+    </div>
+
     <div class="modal-detail-grid">
       <div>
         <span>Priority</span>
@@ -687,13 +679,8 @@ function openInquiryModal(inquiryId) {
       </div>
 
       <div>
-        <span>Contact Name</span>
-        <strong>${getContactName(inquiry)}</strong>
-      </div>
-
-      <div>
-        <span>Email</span>
-        <strong>${getEmail(inquiry)}</strong>
+        <span>Company</span>
+        <strong>${getCompany(inquiry)}</strong>
       </div>
 
       <div>
@@ -719,11 +706,6 @@ function openInquiryModal(inquiryId) {
       <div>
         <span>Number of Inquiries</span>
         <strong>${inquiryCountLabel}</strong>
-      </div>
-
-      <div>
-        <span>Contacted State</span>
-        <strong>${isContacted ? `Contacted on ${formatDate(contactedAt)}` : "Not contacted yet"}</strong>
       </div>
     </div>
 
