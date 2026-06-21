@@ -151,6 +151,18 @@ function getReceivedDate(inquiry) {
   );
 }
 
+function getSaleDate(sale) {
+  return (
+    sale.sale_date ||
+    sale.sales_date ||
+    sale.order_date ||
+    sale.date ||
+    sale.created_at ||
+    sale.createdAt ||
+    "Unknown date"
+  );
+}
+
 function getInquiryMessage(inquiry) {
   return inquiry.message || inquiry.notes || inquiry.description || "No message provided.";
 }
@@ -173,14 +185,20 @@ function getActiveInquiries(inquiries) {
   return inquiries.filter((inquiry) => !isClosedInquiry(inquiry));
 }
 
-function getMonthKey(inquiry) {
-  const date = new Date(getReceivedDate(inquiry));
+function getMonthKeyFromDate(dateValue) {
+  const date = new Date(dateValue);
 
-  if (Number.isNaN(date.getTime())) {
-    return "Unknown";
-  }
+  if (Number.isNaN(date.getTime())) return "Unknown";
 
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function getMonthKey(inquiry) {
+  return getMonthKeyFromDate(getReceivedDate(inquiry));
+}
+
+function getSaleMonthKey(sale) {
+  return getMonthKeyFromDate(getSaleDate(sale));
 }
 
 function formatMonthLabel(monthKey) {
@@ -238,6 +256,18 @@ function filterInquiriesByMonth(inquiries) {
   return inquiries.filter((inquiry) => getMonthKey(inquiry) === selectedMonth);
 }
 
+function filterSalesByMonth(sales) {
+  const selectedMonth = getSelectedMonth();
+
+  if (selectedMonth === "all") return sales;
+
+  const salesWithValidDate = sales.filter((sale) => getSaleMonthKey(sale) !== "Unknown");
+
+  if (!salesWithValidDate.length) return sales;
+
+  return sales.filter((sale) => getSaleMonthKey(sale) === selectedMonth);
+}
+
 function renderDashboard(sales, inquiries, accounts) {
   window.allSales = sales;
   window.allInquiries = inquiries;
@@ -246,10 +276,12 @@ function renderDashboard(sales, inquiries, accounts) {
   populateMonthFilter(inquiries);
 
   const filteredInquiries = filterInquiriesByMonth(inquiries);
+  const filteredSales = filterSalesByMonth(sales);
 
-  renderInquiryMetrics(filteredInquiries);
-  renderInquiryCharts(inquiries, filteredInquiries);
+  renderInquiryMetrics(filteredInquiries, filteredSales);
+  renderInquiryCharts(inquiries, filteredInquiries, filteredSales);
   renderTriageWorkflow(filteredInquiries, accounts);
+  updateDashboardFilterLabel();
 
   const monthFilter = document.getElementById("monthFilter");
 
@@ -260,46 +292,55 @@ function renderDashboard(sales, inquiries, accounts) {
   }
 }
 
-function renderInquiryMetrics(inquiries) {
+function renderInquiryMetrics(inquiries, sales) {
+  const contactedState = getContactedState();
+
   const totalInquiries = inquiries.length;
   const closedInquiries = inquiries.filter((inquiry) => isClosedInquiry(inquiry)).length;
   const conversionRate =
     totalInquiries > 0 ? (closedInquiries / totalInquiries) * 100 : 0;
 
-  const requestedVolume = inquiries.reduce((sum, inquiry) => {
-    return sum + getRequestedVolume(inquiry);
+  const activeInquiries = getActiveInquiries(inquiries);
+
+  const needsAction = activeInquiries.filter((inquiry, index) => {
+    const inquiryId = getInquiryId(inquiry, index);
+    return !contactedState[inquiryId]?.contacted;
+  }).length;
+
+  const totalRevenue = sales.reduce((sum, sale) => {
+    return sum + getRevenue(sale);
   }, 0);
-
-  const activePipeline = inquiries.filter((inquiry) => !isClosedInquiry(inquiry)).length;
-
-  const avgRequestedVolume =
-    totalInquiries > 0 ? requestedVolume / totalInquiries : 0;
-
-  const inquiriesByRegion = groupCountByRegion(inquiries);
-  const closedByRegion = groupCountByRegion(
-    inquiries.filter((inquiry) => isClosedInquiry(inquiry))
-  );
 
   setText("totalInquiries", totalInquiries.toLocaleString());
   setText("closedInquiries", closedInquiries.toLocaleString());
   setText("conversionRate", `${conversionRate.toFixed(1)}%`);
-  setText("requestedVolume", `${requestedVolume.toLocaleString()} lbs`);
-  setText("topInquiryRegion", getTopKey(inquiriesByRegion));
-  setText("topClosedRegion", getTopKey(closedByRegion));
-  setText("activePipeline", activePipeline.toLocaleString());
-  setText("avgRequestedVolume", `${Math.round(avgRequestedVolume).toLocaleString()} lbs`);
+  setText("needsAction", needsAction.toLocaleString());
+  setText("totalRevenue", `$${Math.round(totalRevenue).toLocaleString()}`);
 }
 
-function renderInquiryCharts(allInquiries, filteredInquiries) {
+function renderInquiryCharts(allInquiries, filteredInquiries, filteredSales) {
   const closedByMonth = groupClosedByMonth(allInquiries);
   const inquiriesByRegion = groupCountByRegion(filteredInquiries);
   const closedByRegion = groupCountByRegion(
     filteredInquiries.filter((inquiry) => isClosedInquiry(inquiry))
   );
+  const revenueByRegion = groupRevenueByRegion(filteredSales);
+  const salesByRegion = groupSalesByRegion(filteredSales);
 
   renderBarChart("closedByMonthChart", closedByMonth, "", true);
-  renderBarChart("inquiriesByRegionChart", inquiriesByRegion, "", false);
-  renderBarChart("closedByRegionChart", closedByRegion, "", false);
+  renderBarChart("revenueByRegionChart", revenueByRegion, "$", false);
+  renderPieChart("inquiriesByRegionChart", inquiriesByRegion);
+  renderPieChart("closedByRegionChart", closedByRegion);
+  renderBarChart("salesByRegionChart", salesByRegion, "", false);
+  renderPieChart("revenueMixByRegionChart", revenueByRegion, "$");
+}
+
+function updateDashboardFilterLabel() {
+  const selectedMonth = getSelectedMonth();
+  const label =
+    selectedMonth === "all" ? "All months" : formatMonthLabel(selectedMonth);
+
+  setText("currentMonthLabel", label);
 }
 
 function setText(elementId, value) {
@@ -310,10 +351,28 @@ function setText(elementId, value) {
   }
 }
 
-function getTopKey(data) {
-  const top = Object.entries(data).sort((a, b) => b[1] - a[1])[0];
+function groupRevenueByRegion(sales) {
+  const regionMap = {};
 
-  return top ? top[0] : "-";
+  sales.forEach((sale) => {
+    const region = getRegion(sale);
+    const revenue = getRevenue(sale);
+
+    regionMap[region] = (regionMap[region] || 0) + revenue;
+  });
+
+  return regionMap;
+}
+
+function groupSalesByRegion(sales) {
+  const regionMap = {};
+
+  sales.forEach((sale) => {
+    const region = getRegion(sale);
+    regionMap[region] = (regionMap[region] || 0) + 1;
+  });
+
+  return regionMap;
 }
 
 function groupCountByRegion(inquiries) {
@@ -403,6 +462,60 @@ function renderBarChart(elementId, data, prefix, isColumnChart) {
 
     container.appendChild(row);
   });
+}
+
+function renderPieChart(elementId, data, prefix = "") {
+  const container = document.getElementById(elementId);
+
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const entries = Object.entries(data).filter((entry) => Number(entry[1]) > 0);
+
+  if (!entries.length) {
+    container.innerHTML = `<p class="empty-state">No data available.</p>`;
+    return;
+  }
+
+  const colors = ["#6f4728", "#8b5e34", "#c7a17a", "#d9b99b", "#4b2e1f", "#a47148"];
+  const total = entries.reduce((sum, entry) => sum + Number(entry[1]), 0);
+
+  let currentDegree = 0;
+
+  const gradientParts = entries.map(([label, value], index) => {
+    const numericValue = Number(value);
+    const degrees = (numericValue / total) * 360;
+    const start = currentDegree;
+    const end = currentDegree + degrees;
+
+    currentDegree = end;
+
+    return `${colors[index % colors.length]} ${start}deg ${end}deg`;
+  });
+
+  const chart = document.createElement("div");
+  chart.className = "pie-chart";
+
+  const legendItems = entries.map(([label, value], index) => {
+    const numericValue = Number(value);
+    const percent = total > 0 ? (numericValue / total) * 100 : 0;
+
+    return `
+      <div class="pie-legend-item">
+        <span class="pie-dot" style="background: ${colors[index % colors.length]}"></span>
+        <span>${label}</span>
+        <span class="pie-value">${prefix}${Math.round(numericValue).toLocaleString()} (${percent.toFixed(1)}%)</span>
+      </div>
+    `;
+  }).join("");
+
+  chart.innerHTML = `
+    <div class="pie-visual" style="background: conic-gradient(${gradientParts.join(", ")})"></div>
+    <div class="pie-legend">${legendItems}</div>
+  `;
+
+  container.appendChild(chart);
 }
 
 function getInquiryId(inquiry, index) {
@@ -504,7 +617,7 @@ function markInquiryAsContacted(inquiryId) {
   };
 
   saveContactedState(contactedState);
-  renderTriageWorkflow(window.currentInquiries || [], window.currentAccounts || []);
+  renderDashboard(window.allSales || [], window.allInquiries || [], window.currentAccounts || []);
 }
 
 function buildTriageItems(inquiries) {
@@ -625,6 +738,24 @@ function matchesSearch(inquiry, searchValue) {
   return searchableText.includes(searchValue);
 }
 
+function updateTriageFilterLabel() {
+  const priorityFilter = document.getElementById("triageFilter");
+  const statusFilter = document.getElementById("triageStatusFilter");
+  const searchInput = document.getElementById("triageSearch");
+
+  const priority = priorityFilter ? priorityFilter.value : "all";
+  const status = statusFilter ? statusFilter.value : "all";
+  const search = searchInput ? searchInput.value.trim() : "";
+
+  const parts = [];
+
+  if (search) parts.push(`Search: ${search}`);
+  if (priority !== "all") parts.push(`Priority: ${priority}`);
+  if (status !== "all") parts.push(`Status: ${status}`);
+
+  setText("currentTriageFilterLabel", parts.length ? parts.join(" | ") : "All active inquiries");
+}
+
 function renderTriageWorkflow(inquiries, accounts = []) {
   window.currentInquiries = inquiries;
   window.currentAccounts = accounts;
@@ -677,6 +808,7 @@ function renderTriageWorkflow(inquiries, accounts = []) {
   });
 
   updateTriageCounts(buildTriageItems(activeInquiries), contactedState);
+  updateTriageFilterLabel();
 
   list.innerHTML = "";
 
