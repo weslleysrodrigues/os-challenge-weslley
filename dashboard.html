@@ -9,90 +9,109 @@
 
 <body>
   <main class="page">
-    <section class="header">
+   <section class="hero">
+  <div class="hero-icon">☕</div>
+
+  <div>
+    <p class="eyebrow">Internal Command Center</p>
+    <h1>Coffee Roaster Dashboard</h1>
+    <p class="subtitle">
+      Track wholesale inquiry performance, regional demand, and follow-up priorities in one place.
+    </p>
+  </div>
+</section>
+
+<section class="dashboard-controls">
+  <div class="filter-group">
+    <label for="monthFilter">Inquiry Month</label>
+    <select id="monthFilter">
+      <option value="all">All months</option>
+    </select>
+  </div>
+</section>
+
+<section class="kpi-grid">
+  <div class="card">
+    <p class="card-label">Total Inquiries</p>
+    <h2 id="totalInquiries">0</h2>
+    <span>Inbound wholesale inquiries</span>
+  </div>
+
+  <div class="card">
+    <p class="card-label">Closed Inquiries</p>
+    <h2 id="closedInquiries">0</h2>
+    <span>Inquiries marked as closed</span>
+  </div>
+
+  <div class="card">
+    <p class="card-label">Conversion Rate</p>
+    <h2 id="conversionRate">0%</h2>
+    <span>Closed inquiries divided by total inquiries</span>
+  </div>
+
+  <div class="card">
+    <p class="card-label">Requested Volume</p>
+    <h2 id="requestedVolume">0 lbs</h2>
+    <span>Total requested monthly volume</span>
+  </div>
+</section>
+
+<section class="grid-two">
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Closed Inquiries by Month</h2>
+      <p>Shows how many inquiries were closed each month.</p>
+    </div>
+    <div id="closedByMonthChart" class="bar-chart"></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Total Inquiries by Region</h2>
+      <p>Shows where inbound demand is coming from.</p>
+    </div>
+    <div id="inquiriesByRegionChart" class="bar-chart"></div>
+  </div>
+</section>
+
+<section class="grid-two">
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Closed Inquiries by Region</h2>
+      <p>Shows which regions are converting into closed opportunities.</p>
+    </div>
+    <div id="closedByRegionChart" class="bar-chart"></div>
+  </div>
+
+  <div class="panel insight-panel">
+    <div class="panel-header">
+      <h2>Operational Snapshot</h2>
+      <p>Quick signals to help operators focus.</p>
+    </div>
+
+    <div class="snapshot-grid">
       <div>
-        <p class="eyebrow">Internal Command Center</p>
-        <h1>Coffee Roaster Dashboard</h1>
-        <p class="subtitle">
-          A quick operator view of sales performance, regional demand, and inquiry workload.
-        </p>
-      </div>
-    </section>
-
-    <section class="kpi-grid">
-      <div class="card">
-        <p class="card-label">Total Revenue</p>
-        <h2 id="totalRevenue">$0</h2>
-        <span>Total revenue</span>
+        <span>Top Region</span>
+        <strong id="topInquiryRegion">-</strong>
       </div>
 
-      <div class="card">
-        <p class="card-label">Total Sales</p>
-        <h2 id="totalSales">0</h2>
-        <span>Number of closed sales</span>
+      <div>
+        <span>Top Closed Region</span>
+        <strong id="topClosedRegion">-</strong>
       </div>
 
-      <div class="card">
-        <p class="card-label">New Inquiries</p>
-        <h2 id="newInquiries">0</h2>
-        <span>Waiting for review</span>
+      <div>
+        <span>Active Pipeline</span>
+        <strong id="activePipeline">0</strong>
       </div>
 
-      <div class="card">
-        <p class="card-label">Top Region</p>
-        <h2 id="topRegion">-</h2>
-        <span>Strongest region by revenue</span>
+      <div>
+        <span>Avg Requested Volume</span>
+        <strong id="avgRequestedVolume">0 lbs</strong>
       </div>
-    </section>
-
-    <section class="grid-two">
-      <div class="panel">
-        <div class="panel-header">
-          <h2>Revenue by Region</h2>
-          <p>Share of Regions where the business is strongest.</p>
-        </div>
-        <div id="revenueByRegion" class="bar-chart"></div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-header">
-          <h2>Inquiries by Status</h2>
-          <p>Share of inquiries on each stage.</p>
-        </div>
-        <div id="inquiriesByStatus" class="bar-chart"></div>
-      </div>
-    </section>
-
-    <section class="grid-two">
-      <div class="panel">
-        <div class="panel-header">
-          <h2>Operator Notes</h2>
-          <p>Useful signals for daily triage decisions.</p>
-        </div>
-        <div id="operatorNotes" class="notes"></div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-header">
-          <h2>Recent Inquiries</h2>
-          <p>A quick starting point for the inquiry-triage workflow.</p>
-        </div>
-
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Company</th>
-                <th>Region</th>
-                <th>Status</th>
-                <th>Priority</th>
-              </tr>
-            </thead>
-            <tbody id="recentInquiries"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+    </div>
+  </div>
+</section>
 
   <section class="panel triage-panel">
   <div class="panel-header">
